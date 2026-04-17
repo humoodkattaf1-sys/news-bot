@@ -1,0 +1,17 @@
+[
+  {
+    "id": "story_event_1",
+    "trigger_condition": { "creature_evolved": true },
+    "dialogue": [
+      "The Grove stirs. The trees lean inward.",
+      "An elder figure emerges from the mist.",
+      "\"You have cared well. Your companion has answered.\"",
+      "\"The wilds beyond await — when you are ready.\"",
+      "The path forward shimmers, then slowly fades.",
+      "[ To be continued... ]"
+    ],
+    "grants_item": null,
+    "unlocks_area": null,
+    "advances_player_age": false
+  }
+]

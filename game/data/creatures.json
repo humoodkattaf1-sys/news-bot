@@ -1,0 +1,62 @@
+[
+  {
+    "id": "frogling",
+    "display_name": "Frogling",
+    "description": "A calm, damp creature that thrives near mossy pools.",
+    "stage": 1,
+    "evolution_level": 10,
+    "evolution_item_id": "moonstone_shard",
+    "evolved_form_id": "marshwarden",
+    "base_stats": { "speed": 3, "resilience": 4, "forage": 5 }
+  },
+  {
+    "id": "marshwarden",
+    "display_name": "Marshwarden",
+    "description": "Ancient and still. Its presence calms the forest.",
+    "stage": 2,
+    "evolution_level": null,
+    "evolution_item_id": null,
+    "evolved_form_id": null,
+    "base_stats": { "speed": 4, "resilience": 7, "forage": 8 }
+  },
+  {
+    "id": "embkit",
+    "display_name": "Embkit",
+    "description": "A restless spark that singes the grass it runs across.",
+    "stage": 1,
+    "evolution_level": 10,
+    "evolution_item_id": "moonstone_shard",
+    "evolved_form_id": "cinderhorn",
+    "base_stats": { "speed": 6, "resilience": 2, "forage": 4 }
+  },
+  {
+    "id": "cinderhorn",
+    "display_name": "Cinderhorn",
+    "description": "Swift and bold. Its horns glow when excited.",
+    "stage": 2,
+    "evolution_level": null,
+    "evolution_item_id": null,
+    "evolved_form_id": null,
+    "base_stats": { "speed": 9, "resilience": 4, "forage": 5 }
+  },
+  {
+    "id": "puffmote",
+    "display_name": "Puffmote",
+    "description": "Round, floaty, and unexpectedly resilient.",
+    "stage": 1,
+    "evolution_level": 10,
+    "evolution_item_id": "moonstone_shard",
+    "evolved_form_id": "galehallow",
+    "base_stats": { "speed": 4, "resilience": 5, "forage": 3 }
+  },
+  {
+    "id": "galehallow",
+    "display_name": "Galehallow",
+    "description": "Drifts silently through the canopy, scattering seeds.",
+    "stage": 2,
+    "evolution_level": null,
+    "evolution_item_id": null,
+    "evolved_form_id": null,
+    "base_stats": { "speed": 6, "resilience": 7, "forage": 6 }
+  }
+]
