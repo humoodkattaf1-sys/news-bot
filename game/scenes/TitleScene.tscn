@@ -2,5 +2,56 @@
 
 [ext_resource type="Script" path="res://scenes/TitleScene.gd" id="1"]
 
-[node name="TitleScene" type="Node2D"]
+[node name="TitleScene" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource("1")
+
+[node name="BG" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.07, 0.11, 0.07, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Center/VBox"]
+text = "KINDRED WILDS"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 72
+theme_override_colors/font_color = Color(0.75, 0.95, 0.65, 1)
+
+[node name="Tagline" type="Label" parent="Center/VBox"]
+text = "A creature nurturing adventure"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.6, 0.78, 0.55, 1)
+
+[node name="Spacer" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 64)
+
+[node name="NewGameBtn" type="Button" parent="Center/VBox"]
+text = "New Game"
+custom_minimum_size = Vector2(280, 58)
+size_flags_horizontal = 4
+
+[node name="ContinueBtn" type="Button" parent="Center/VBox"]
+text = "Continue"
+custom_minimum_size = Vector2(280, 58)
+size_flags_horizontal = 4
+
+[node name="Spacer2" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 24)
+
+[node name="Version" type="Label" parent="Center/VBox"]
+text = "v0.1 — MVP"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.38, 0.5, 0.35, 1)
+
+[connection signal="pressed" from="Center/VBox/NewGameBtn" to="." method="_on_new_game_pressed"]
+[connection signal="pressed" from="Center/VBox/ContinueBtn" to="." method="_on_continue_pressed"]

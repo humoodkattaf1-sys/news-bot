@@ -1,9 +1,7 @@
-extends Node2D
+extends Control
 
 func _ready() -> void:
-	# Show "Continue" only when a save file exists.
-	if has_node("UI/ContinueButton"):
-		$UI/ContinueButton.visible = SaveSystem.exists()
+	$Center/VBox/ContinueBtn.visible = SaveSystem.exists()
 
 func _on_new_game_pressed() -> void:
 	SaveSystem.clear()
