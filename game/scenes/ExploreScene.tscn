@@ -5,81 +5,124 @@
 [node name="ExploreScene" type="Node2D"]
 script = ExtResource("1")
 
+; ── Floor background (renders behind all Node2D content) ────────────────────
+[node name="FloorBG" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="FloorRect" type="ColorRect" parent="FloorBG"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.11, 0.20, 0.09, 1.0)
+
+; ── World objects (walls, pickups, stone — populated by GDScript) ────────────
+[node name="Objects" type="Node2D" parent="."]
+
+; ── UI overlay ───────────────────────────────────────────────────────────────
 [node name="UI" type="CanvasLayer" parent="."]
+layer = 10
 
-[node name="Root" type="Control" parent="UI"]
+; Top bar background
+[node name="TopBarBG" type="ColorRect" parent="UI"]
 anchor_right = 1.0
-anchor_bottom = 1.0
+custom_minimum_size = Vector2(0, 56)
+color = Color(0.04, 0.07, 0.04, 0.92)
 
-[node name="BG" type="ColorRect" parent="UI/Root"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color(0.06, 0.10, 0.06, 1)
-
-[node name="TopBar" type="ColorRect" parent="UI/Root"]
-anchor_right = 1.0
-custom_minimum_size = Vector2(0, 48)
-color = Color(0.04, 0.07, 0.04, 1)
-
-[node name="AreaLabel" type="Label" parent="UI/Root/TopBar"]
-anchor_right = 1.0
-anchor_bottom = 1.0
+; Area name — top-left
+[node name="AreaLabel" type="Label" parent="UI"]
+position = Vector2(12, 16)
 text = "Whispering Grove"
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.7, 0.88, 0.6, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.68, 0.88, 0.55, 1.0)
 
-[node name="Center" type="CenterContainer" parent="UI/Root"]
+; Creature name + level — centre-right of top bar
+[node name="CreatureLabel" type="Label" parent="UI"]
+position = Vector2(680, 8)
+text = "— — —"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.88, 0.96, 0.75, 1.0)
+
+; "EXP" prefix label
+[node name="ExpLabel" type="Label" parent="UI"]
+position = Vector2(680, 30)
+text = "EXP"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.55, 0.72, 0.45, 1.0)
+
+; EXP progress bar
+[node name="ExpBar" type="ProgressBar" parent="UI"]
+position = Vector2(712, 33)
+custom_minimum_size = Vector2(200, 14)
+min_value = 0.0
+max_value = 100.0
+value = 0.0
+
+; Item count badge — far right
+[node name="ItemsLabel" type="Label" parent="UI"]
+position = Vector2(930, 16)
+text = "[ I ] Items: 0"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.88, 0.96, 0.75, 1.0)
+
+; Collected resources strip — visible list of what's in the bag
+[node name="ResourceStrip" type="Label" parent="UI"]
 anchor_right = 1.0
-anchor_bottom = 1.0
+offset_top = 56.0
+offset_bottom = 82.0
+text = ""
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.72, 0.88, 0.58, 0.85)
 
-[node name="VBox" type="VBoxContainer" parent="UI/Root/Center"]
-theme_override_constants/separation = 20
-
-[node name="GreetLabel" type="Label" parent="UI/Root/Center/VBox"]
-text = "Your journey begins..."
+; Hint popup — centre-bottom, hidden until needed
+[node name="HintLabel" type="Label" parent="UI"]
+anchor_left = 0.0
+anchor_right = 1.0
+offset_top = 610.0
+offset_bottom = 644.0
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 28
-theme_override_colors/font_color = Color(0.8, 0.95, 0.68, 1)
+visible = false
+text = ""
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.96, 0.98, 0.82, 1.0)
 
-[node name="CompanionLabel" type="Label" parent="UI/Root/Center/VBox"]
-text = "Companion:  Frogling  —  Lv. 1"
+; Controls bar — bottom edge
+[node name="ControlsBar" type="Label" parent="UI"]
+anchor_left = 0.0
+anchor_right = 1.0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+horizontal_alignment = 1
+text = "WASD — Move     I — Inventory     E — Interact with stone"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.40, 0.52, 0.36, 1.0)
+
+; Inventory panel — centred, hidden by default
+[node name="InventoryPanel" type="PanelContainer" parent="UI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -255.0
+offset_top = -185.0
+offset_right = 255.0
+offset_bottom = 185.0
+visible = false
+
+[node name="VBox" type="VBoxContainer" parent="UI/InventoryPanel"]
+theme_override_constants/separation = 10
+
+[node name="InvTitle" type="Label" parent="UI/InventoryPanel/VBox"]
+text = "Inventory"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 20
-theme_override_colors/font_color = Color(0.68, 0.85, 0.58, 1)
+theme_override_colors/font_color = Color(0.85, 0.96, 0.72, 1.0)
 
-[node name="CreatureArt" type="ColorRect" parent="UI/Root/Center/VBox"]
-custom_minimum_size = Vector2(160, 160)
-size_flags_horizontal = 4
-color = Color(0.18, 0.48, 0.22, 1)
-
-[node name="ArtInitial" type="Label" parent="UI/Root/Center/VBox/CreatureArt"]
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="InvHint" type="Label" parent="UI/InventoryPanel/VBox"]
+text = "Double-click food to feed your companion      [ I ] close"
 horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 80
-theme_override_colors/font_color = Color(1, 1, 1, 0.22)
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.56, 0.72, 0.48, 1.0)
 
-[node name="HintLabel" type="Label" parent="UI/Root/Center/VBox"]
-text = "[ Full exploration scene — next milestone ]"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.42, 0.55, 0.38, 1)
-
-[node name="BottomBar" type="ColorRect" parent="UI/Root"]
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -40.0
-color = Color(0.04, 0.07, 0.04, 1)
-
-[node name="ControlsLabel" type="Label" parent="UI/Root/BottomBar"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-text = "WASD — Move     I — Inventory     E — Interact"
-horizontal_alignment = 1
-vertical_alignment = 1
-theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.45, 0.58, 0.4, 1)
+[node name="InvList" type="ItemList" parent="UI/InventoryPanel/VBox"]
+custom_minimum_size = Vector2(490, 250)
