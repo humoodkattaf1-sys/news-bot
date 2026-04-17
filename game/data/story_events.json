@@ -1,7 +1,9 @@
 [
   {
     "id": "story_event_1",
-    "trigger_condition": { "creature_evolved": true },
+    "trigger_condition": {
+      "creature_evolved": true
+    },
     "dialogue": [
       "The Grove stirs. The trees lean inward.",
       "An elder figure emerges from the mist.",
@@ -12,6 +14,7 @@
     ],
     "grants_item": null,
     "unlocks_area": null,
+    "unlocks_clothing": ["forest_cloak", "swift_band", "bark_vest"],
     "advances_player_age": false
   }
 ]

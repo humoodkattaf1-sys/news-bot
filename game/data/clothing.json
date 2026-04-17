@@ -1,0 +1,26 @@
+[
+  {
+    "id": "forest_cloak",
+    "display_name": "Forest Cloak",
+    "description": "Woven from silver-barked branches. Helps you spot hidden growth others walk past.",
+    "is_creature_accessory": false,
+    "stat_bonus": { "forage": 2 },
+    "unlock_condition": "story_event_1"
+  },
+  {
+    "id": "swift_band",
+    "display_name": "Swift Band",
+    "description": "A woven grass band worn on your companion's foreleg. Each step feels lighter.",
+    "is_creature_accessory": true,
+    "stat_bonus": { "speed": 2 },
+    "unlock_condition": "story_event_1"
+  },
+  {
+    "id": "bark_vest",
+    "display_name": "Bark Vest",
+    "description": "Layered bark strips shaped around your companion's frame. Tough as the grove itself.",
+    "is_creature_accessory": true,
+    "stat_bonus": { "resilience": 2 },
+    "unlock_condition": "story_event_1"
+  }
+]

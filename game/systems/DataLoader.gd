@@ -4,37 +4,71 @@ const _PATHS: Dictionary = {
 	"creatures":        "res://data/creatures.json",
 	"foods":            "res://data/foods.json",
 	"evolution_items":  "res://data/evolution_items.json",
+	"clothing":         "res://data/clothing.json",
 	"areas":            "res://data/areas.json",
 	"story_events":     "res://data/story_events.json",
 }
 
 static var _cache: Dictionary = {}
 
-# ── Public getters ────────────────────────────────────────────────────────────
+# ── Creature ──────────────────────────────────────────────────────────────────
 
 static func get_creature(id: String) -> Dictionary:
 	return _find(_load("creatures"), id)
 
-static func get_food(id: String) -> Dictionary:
-	return _find(_load("foods"), id)
-
-static func get_evolution_item(id: String) -> Dictionary:
-	return _find(_load("evolution_items"), id)
-
-static func get_area(id: String) -> Dictionary:
-	return _find(_load("areas"), id)
-
-static func get_story_event(id: String) -> Dictionary:
-	return _find(_load("story_events"), id)
-
 static func get_all_creatures() -> Array:
 	return _load("creatures")
 
+## Returns only stage-1 creatures that have an evolution path.
+## Used by CreatureSelectScene to populate the starter list.
 static func get_starter_creatures() -> Array:
 	return _load("creatures").filter(
 		func(c: Dictionary) -> bool:
 			return c.get("stage", 1) == 1 and c.get("evolution_level") != null
 	)
+
+# ── Food ──────────────────────────────────────────────────────────────────────
+
+static func get_food(id: String) -> Dictionary:
+	return _find(_load("foods"), id)
+
+static func get_all_foods() -> Array:
+	return _load("foods")
+
+# ── Evolution items ───────────────────────────────────────────────────────────
+
+static func get_evolution_item(id: String) -> Dictionary:
+	return _find(_load("evolution_items"), id)
+
+# ── Clothing ──────────────────────────────────────────────────────────────────
+
+static func get_clothing(id: String) -> Dictionary:
+	return _find(_load("clothing"), id)
+
+static func get_all_clothing() -> Array:
+	return _load("clothing")
+
+## Returns clothing available to the protagonist (not creature accessories).
+static func get_protagonist_clothing() -> Array:
+	return _load("clothing").filter(
+		func(c: Dictionary) -> bool: return not c.get("is_creature_accessory", false)
+	)
+
+## Returns clothing wearable by the creature.
+static func get_creature_accessories() -> Array:
+	return _load("clothing").filter(
+		func(c: Dictionary) -> bool: return c.get("is_creature_accessory", false)
+	)
+
+# ── Areas ─────────────────────────────────────────────────────────────────────
+
+static func get_area(id: String) -> Dictionary:
+	return _find(_load("areas"), id)
+
+# ── Story events ──────────────────────────────────────────────────────────────
+
+static func get_story_event(id: String) -> Dictionary:
+	return _find(_load("story_events"), id)
 
 # ── Internal ──────────────────────────────────────────────────────────────────
 
