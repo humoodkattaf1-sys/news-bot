@@ -138,7 +138,7 @@ func _refresh_items_label() -> void:
 	var total := 0
 	for v: int in GameState.player.inventory.values():
 		total += v
-	$UI/ItemsLabel.text = "[ I ]  Items: %d" % total
+	$UI/ItemsLabel.text = "[ I ]  Items: %d / %d" % [total, GrowthSystem.carry_capacity()]
 
 func _refresh_resource_strip() -> void:
 	# Show each food type and count in a compact strip just below the top bar.

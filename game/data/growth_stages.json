@@ -1,0 +1,29 @@
+[
+  {
+    "id": "child",
+    "stage": 0,
+    "display_name": "Child",
+    "speed": 170,
+    "carry_capacity": 15,
+    "clothing_slots": 1,
+    "draw_size": 22
+  },
+  {
+    "id": "teen",
+    "stage": 1,
+    "display_name": "Teen",
+    "speed": 200,
+    "carry_capacity": 20,
+    "clothing_slots": 2,
+    "draw_size": 27
+  },
+  {
+    "id": "young_adult",
+    "stage": 2,
+    "display_name": "Young Adult",
+    "speed": 215,
+    "carry_capacity": 25,
+    "clothing_slots": 2,
+    "draw_size": 32
+  }
+]

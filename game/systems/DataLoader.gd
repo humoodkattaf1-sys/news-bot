@@ -7,6 +7,7 @@ const _PATHS: Dictionary = {
 	"clothing":         "res://data/clothing.json",
 	"areas":            "res://data/areas.json",
 	"story_events":     "res://data/story_events.json",
+	"growth_stages":    "res://data/growth_stages.json",
 }
 
 static var _cache: Dictionary = {}
@@ -69,6 +70,19 @@ static func get_area(id: String) -> Dictionary:
 
 static func get_story_event(id: String) -> Dictionary:
 	return _find(_load("story_events"), id)
+
+# ── Growth stages ─────────────────────────────────────────────────────────────
+
+## Returns the stage definition whose "stage" integer matches the given index.
+static func get_growth_stage(stage: int) -> Dictionary:
+	for entry: Dictionary in _load("growth_stages"):
+		if entry.get("stage") == stage:
+			return entry
+	push_warning("DataLoader: growth stage %d not found" % stage)
+	return {}
+
+static func get_all_growth_stages() -> Array:
+	return _load("growth_stages")
 
 # ── Internal ──────────────────────────────────────────────────────────────────
 
