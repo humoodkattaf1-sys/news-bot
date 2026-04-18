@@ -3,4 +3,52 @@
 [ext_resource type="Script" path="res://ui/HUD.gd" id="1"]
 
 [node name="HUD" type="CanvasLayer"]
+layer = 10
 script = ExtResource("1")
+
+; Top bar background
+[node name="TopBarBG" type="ColorRect" parent="."]
+anchor_right = 1.0
+custom_minimum_size = Vector2(0, 56)
+color = Color(0.04, 0.07, 0.04, 0.92)
+
+; Creature name — centre-right
+[node name="CreatureName" type="Label" parent="."]
+position = Vector2(680, 8)
+text = "—"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.88, 0.96, 0.75, 1.0)
+
+; Level label — beside creature name
+[node name="LevelLabel" type="Label" parent="."]
+position = Vector2(680, 30)
+text = "Lv. 1"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.68, 0.88, 0.55, 1.0)
+
+; EXP progress bar
+[node name="ExpBar" type="ProgressBar" parent="."]
+position = Vector2(740, 33)
+custom_minimum_size = Vector2(180, 14)
+min_value = 0.0
+max_value = 100.0
+value = 0.0
+
+; Item count badge — far right
+[node name="ItemCount" type="Label" parent="."]
+position = Vector2(940, 16)
+text = "[I] Items: 0"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.88, 0.96, 0.75, 1.0)
+
+; Hint banner — centre-bottom, hidden until needed
+[node name="HintLabel" type="Label" parent="."]
+anchor_left = 0.0
+anchor_right = 1.0
+offset_top = 610.0
+offset_bottom = 644.0
+horizontal_alignment = 1
+visible = false
+text = ""
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.96, 0.98, 0.82, 1.0)

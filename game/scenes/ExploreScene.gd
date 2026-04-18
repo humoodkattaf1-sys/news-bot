@@ -154,7 +154,39 @@ func _toggle_inventory() -> void:
 	var panel := $UI/InventoryPanel
 	panel.visible = not panel.visible
 	if panel.visible:
+		_populate_creature_info()
 		_populate_inv_list()
+
+func _populate_creature_info() -> void:
+	var c   := GameState.creature
+	var def := DataLoader.get_creature(c.creature_id)
+	var box := $UI/InventoryPanel/VBox/CreatureInfoBox
+
+	box.get_node("CreaturePanelName").text = def.get("display_name", "?")
+
+	var exp_need: int = ExpSystem.exp_to_next(c.level)
+	box.get_node("CreaturePanelLevel").text = \
+		"Lv. %d   ·   EXP  %d / %d" % [c.level, c.exp, exp_need]
+
+	box.get_node("CreaturePanelExpBar").value = ExpSystem.progress_ratio(c) * 100.0
+
+	var evo_text: String
+	var evo_form: String = def.get("evolved_form_id", "")
+	if c.evolved or evo_form.is_empty():
+		evo_text = "Fully evolved"
+	else:
+		var req_level: int   = def.get("evolution_level", 999)
+		var req_item: String = def.get("evolution_item_id", "")
+		var item_def         := DataLoader.get_evolution_item(req_item)
+		var item_name: String = item_def.get("display_name", req_item)
+		if c.level >= req_level and GameState.player.has_item(req_item):
+			evo_text = "Ready to evolve!   Visit the stone."
+		elif c.level >= req_level:
+			evo_text = "Level reached — need %s" % item_name
+		else:
+			evo_text = "Evolves at Lv. %d   +   %s" % [req_level, item_name]
+
+	box.get_node("EvoReqLabel").text = evo_text
 
 func _populate_inv_list() -> void:
 	var list := $UI/InventoryPanel/VBox/InvList
@@ -181,6 +213,7 @@ func _on_inv_item_activated(index: int) -> void:
 
 	var levelled_up := ExpSystem.apply_exp(GameState.creature, food_def["exp_value"])
 	InventorySystem.remove(GameState.player, item_id)
+	_populate_creature_info()
 	_populate_inv_list()
 	_refresh_hud()
 

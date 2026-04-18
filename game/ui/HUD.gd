@@ -3,6 +3,7 @@ extends CanvasLayer
 var _hint_timer: SceneTreeTimer = null
 
 func _ready() -> void:
+	add_to_group("hud")
 	refresh()
 
 func refresh() -> void:
