@@ -17,9 +17,11 @@ var world: Dictionary = _default_world()
 
 func _default_world() -> Dictionary:
 	return {
-		"current_area":    "whispering_grove",
-		"collected_nodes": [],
-		"respawn_used":    false,
+		"current_area":       "whispering_grove",
+		"collected_nodes":    [],
+		"respawn_used":       false,
+		"food_gathered_total": 0,
+		"milestone_phase":    0,
 	}
 
 func reset() -> void:

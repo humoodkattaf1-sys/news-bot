@@ -38,11 +38,11 @@ func _advance() -> void:
 					_phase = _Phase.GROWTH
 					_show_growth()
 				else:
-					SceneManager.go_to("end_screen")
+					SceneManager.go_to("explore")
 			else:
 				_show_dialogue()
 		_Phase.GROWTH:
-			SceneManager.go_to("end_screen")
+			SceneManager.go_to("explore")
 
 # ── Display helpers ───────────────────────────────────────────────────────────
 

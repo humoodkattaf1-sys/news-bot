@@ -31,12 +31,15 @@ const FOOD_NODES: Array = [
 ]
 
 const STONE_POS    := Vector2(1100, 400)
+const SHARD_POS    := Vector2( 820, 560)
+const SHARD_NAME   := "shard_moonstone"
 const PLAYER_START := Vector2( 180, 360)
 
 # ── State ─────────────────────────────────────────────────────────────────────
 
-var _player:     CharacterBody2D = null
-var _hint_timer: SceneTreeTimer  = null
+var _player:               CharacterBody2D = null
+var _hint_timer:           SceneTreeTimer  = null
+var _milestone_popup_open: bool            = false
 
 # ── Lifecycle ─────────────────────────────────────────────────────────────────
 
@@ -44,11 +47,13 @@ func _ready() -> void:
 	_build_walls()
 	_place_food()
 	_place_stone()
+	_place_shard()
 	_spawn_player()
 	_spawn_companion()
 	_restore_collected()
 	_setup_ui()
 	EquipSystem.recalc_bonuses()
+	_check_milestone()
 
 # ── Map building ──────────────────────────────────────────────────────────────
 
@@ -90,6 +95,16 @@ func _place_stone() -> void:
 	stone.stone_entered.connect(on_evolution_stone_entered)
 	$Objects.add_child(stone)
 
+func _place_shard() -> void:
+	if SHARD_NAME in GameState.world.get("collected_nodes", []):
+		return
+	var pickup      := FoodScene.instantiate()
+	pickup.food_id  = "moonstone_shard"
+	pickup.name     = SHARD_NAME
+	pickup.position = SHARD_POS
+	pickup.collected.connect(on_node_collected)
+	$Objects.add_child(pickup)
+
 func _spawn_player() -> void:
 	_player          = PlayerScene.instantiate()
 	_player.position = PLAYER_START
@@ -122,7 +137,9 @@ func _setup_ui() -> void:
 	$UI/EquipPanel.visible = false
 	$UI/EquipPanel/VBox/HBox/OutfitBox/OutfitList.item_activated.connect(_on_outfit_activated)
 	$UI/EquipPanel/VBox/HBox/AccessoryBox/AccessoryList.item_activated.connect(_on_accessory_activated)
+	$UI/MilestonePopup.visible = false
 	_refresh_hud()
+	_update_objective_label()
 
 func _refresh_hud() -> void:
 	var c   := GameState.creature
@@ -222,6 +239,7 @@ func _on_inv_item_activated(index: int) -> void:
 	if levelled_up:
 		msg += "   \u2014   Level up!  Lv. %d" % GameState.creature.level
 	show_hint(msg)
+	_check_milestone()
 
 # ── Equipment panel (Q) ───────────────────────────────────────────────────────
 
@@ -347,9 +365,18 @@ func _on_accessory_activated(index: int) -> void:
 func on_node_collected(item_id: String, node_name: String) -> void:
 	InventorySystem.add(GameState.player, item_id)
 	GameState.world["collected_nodes"].append(node_name)
+
+	var food_def := DataLoader.get_food(item_id)
+	if not food_def.is_empty():
+		var total: int = GameState.world.get("food_gathered_total", 0) + 1
+		GameState.world["food_gathered_total"] = total
+		show_hint("Found  " + food_def.get("display_name", item_id))
+	else:
+		var evo_def := DataLoader.get_evolution_item(item_id)
+		show_hint("Found  " + evo_def.get("display_name", item_id))
+
 	_refresh_hud()
-	var def := DataLoader.get_food(item_id)
-	show_hint("Found  " + def.get("display_name", item_id))
+	_check_milestone()
 
 func on_evolution_stone_entered() -> void:
 	var c   := GameState.creature
@@ -377,6 +404,27 @@ func on_evolution_stone_entered() -> void:
 	else:
 		show_hint("Need %s to evolve" % item_name)
 
+# ── Milestone system ─────────────────────────────────────────────────────────
+
+func _check_milestone() -> void:
+	var completed := MilestoneSystem.check_and_advance()
+	if not completed.is_empty():
+		_show_milestone_popup(completed)
+	_update_objective_label()
+
+func _update_objective_label() -> void:
+	if MilestoneSystem.is_complete():
+		$UI/ObjectiveLabel.text = ""
+		return
+	$UI/ObjectiveLabel.text = \
+		"  \u25b6  " + MilestoneSystem.objective_text() + MilestoneSystem.progress_text()
+
+func _show_milestone_popup(m: Dictionary) -> void:
+	_milestone_popup_open = true
+	$UI/MilestonePopup/VBox/PopupTitle.text = m.get("completion_title", "Milestone")
+	$UI/MilestonePopup/VBox/PopupBody.text  = m.get("completion_body", "")
+	$UI/MilestonePopup.visible = true
+
 # ── Hint banner ───────────────────────────────────────────────────────────────
 
 func show_hint(text: String, duration: float = 2.8) -> void:
@@ -391,6 +439,11 @@ func show_hint(text: String, duration: float = 2.8) -> void:
 # ── Input ─────────────────────────────────────────────────────────────────────
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _milestone_popup_open and event.is_action_pressed("confirm"):
+		$UI/MilestonePopup.visible = false
+		_milestone_popup_open = false
+		get_viewport().set_input_as_handled()
+		return
 	if event.is_action_pressed("open_inventory"):
 		_toggle_inventory()
 	elif event.is_action_pressed("open_equipment"):

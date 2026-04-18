@@ -8,6 +8,7 @@ const _PATHS: Dictionary = {
 	"areas":            "res://data/areas.json",
 	"story_events":     "res://data/story_events.json",
 	"growth_stages":    "res://data/growth_stages.json",
+	"milestones":       "res://data/milestones.json",
 }
 
 static var _cache: Dictionary = {}
@@ -83,6 +84,11 @@ static func get_growth_stage(stage: int) -> Dictionary:
 
 static func get_all_growth_stages() -> Array:
 	return _load("growth_stages")
+
+# ── Milestones ────────────────────────────────────────────────────────────────
+
+static func get_all_milestones() -> Array:
+	return _load("milestones")
 
 # ── Internal ──────────────────────────────────────────────────────────────────
 

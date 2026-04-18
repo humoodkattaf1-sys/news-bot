@@ -23,6 +23,15 @@ static func should_trigger(event_id: String) -> bool:
 			"creature_evolved":
 				if GameState.creature.evolved != conditions[key]:
 					return false
+			"creature_level":
+				if GameState.creature.level < int(conditions[key]):
+					return false
+			"has_item":
+				if not GameState.player.has_item(str(conditions[key])):
+					return false
+			"food_gathered_total":
+				if GameState.world.get("food_gathered_total", 0) < int(conditions[key]):
+					return false
 	return true
 
 ## Applies all side-effects of a story event: item grants, area unlocks,

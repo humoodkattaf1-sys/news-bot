@@ -73,6 +73,16 @@ horizontal_alignment = 2
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.72, 0.88, 0.58, 0.85)
 
+; Current milestone objective — below resource strip
+[node name="ObjectiveLabel" type="Label" parent="UI"]
+anchor_right = 1.0
+offset_top = 82.0
+offset_bottom = 104.0
+text = ""
+horizontal_alignment = 0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.92, 0.84, 0.42, 0.90)
+
 ; Hint popup — centre-bottom, hidden until needed
 [node name="HintLabel" type="Label" parent="UI"]
 anchor_left = 0.0
@@ -252,3 +262,38 @@ horizontal_alignment = 1
 text = "[ Q ] close"
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.50, 0.65, 0.42, 0.80)
+
+; ── Milestone completion popup — centred, hidden until a phase completes ──────
+[node name="MilestonePopup" type="PanelContainer" parent="UI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -100.0
+offset_right = 300.0
+offset_bottom = 100.0
+visible = false
+
+[node name="VBox" type="VBoxContainer" parent="UI/MilestonePopup"]
+theme_override_constants/separation = 12
+
+[node name="PopupTitle" type="Label" parent="UI/MilestonePopup/VBox"]
+text = ""
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.95, 0.92, 0.60, 1.0)
+
+[node name="PopupBody" type="Label" parent="UI/MilestonePopup/VBox"]
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+custom_minimum_size = Vector2(560, 0)
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.85, 0.92, 0.72, 1.0)
+
+[node name="PopupHint" type="Label" parent="UI/MilestonePopup/VBox"]
+text = "[ SPACE ] continue"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.50, 0.62, 0.42, 0.75)
