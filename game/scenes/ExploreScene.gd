@@ -232,20 +232,31 @@ func on_node_collected(item_id: String, node_name: String) -> void:
 	show_hint("Found  " + def.get("display_name", item_id))
 
 func on_evolution_stone_entered() -> void:
-	if EvolutionSystem.can_evolve(GameState.creature, GameState.player):
+	var c   := GameState.creature
+	var def := DataLoader.get_creature(c.creature_id)
+
+	# Already at max stage — no further evolution possible.
+	if c.evolved or not def.get("evolved_form_id"):
+		show_hint("%s is fully evolved." % def.get("display_name", "?"))
+		return
+
+	if EvolutionSystem.can_evolve(c, GameState.player):
 		SceneManager.go_to("evolution")
 		return
 
-	var c   := GameState.creature
-	var def := DataLoader.get_creature(c.creature_id)
-	var req_level: int = def.get("evolution_level", 10)
+	var req_level : int    = def.get("evolution_level", 10)
+	var req_item  : String = def.get("evolution_item_id", "")
+	var item_def          := DataLoader.get_evolution_item(req_item)
+	var item_name : String = item_def.get("display_name", req_item)
+	var has_level : bool   = c.level >= req_level
+	var has_item  : bool   = GameState.player.has_item(req_item)
 
-	if c.level < req_level:
-		show_hint(
-			"Reach Lv. %d to evolve   ( now Lv. %d )" % [req_level, c.level]
-		)
+	if not has_level and not has_item:
+		show_hint("Need Lv. %d and %s to evolve" % [req_level, item_name])
+	elif not has_level:
+		show_hint("Reach Lv. %d to evolve   ( now Lv. %d )" % [req_level, c.level])
 	else:
-		show_hint("You need the Moonstone Shard to evolve here.")
+		show_hint("Need %s to evolve" % item_name)
 
 # ── Hint banner ───────────────────────────────────────────────────────────────
 
