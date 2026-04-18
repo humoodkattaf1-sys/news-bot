@@ -30,10 +30,20 @@ const FOOD_NODES: Array = [
 	["dewdrop_vial", Vector2( 640, 520), "food_6"],
 ]
 
-const STONE_POS    := Vector2(1100, 400)
-const SHARD_POS    := Vector2( 820, 560)
-const SHARD_NAME   := "shard_moonstone"
-const PLAYER_START := Vector2( 180, 360)
+const STONE_POS       := Vector2(1100, 400)
+const SHARD_POS       := Vector2( 820, 560)
+const SHARD_NODE_NAME := "moonstone_shard_pickup"  # scene-tree name; item_id is "moonstone_shard"
+const PLAYER_START    := Vector2( 180, 360)
+
+# Shared label mapping for stat bonus display — used by _fmt_bonus() and _refresh_bonus_label().
+const BONUS_TAGS: Dictionary = {
+	"speed":          "SPD",
+	"resilience":     "RES",
+	"forage":         "FOR",
+	"carry_capacity": "BAG",
+	"xp_boost":       "XP",
+	"luck":           "LCK",
+}
 
 # ── State ─────────────────────────────────────────────────────────────────────
 
@@ -52,7 +62,7 @@ func _ready() -> void:
 	_spawn_companion()
 	_restore_collected()
 	_setup_ui()
-	EquipSystem.recalc_bonuses()
+	EquipSystem.recalc_bonuses()  # restore stat bonuses from save data on every load
 	_check_milestone()
 
 # ── Map building ──────────────────────────────────────────────────────────────
@@ -96,11 +106,11 @@ func _place_stone() -> void:
 	$Objects.add_child(stone)
 
 func _place_shard() -> void:
-	if SHARD_NAME in GameState.world.get("collected_nodes", []):
+	if SHARD_NODE_NAME in GameState.world.get("collected_nodes", []):
 		return
 	var pickup      := FoodScene.instantiate()
 	pickup.food_id  = "moonstone_shard"
-	pickup.name     = SHARD_NAME
+	pickup.name     = SHARD_NODE_NAME
 	pickup.position = SHARD_POS
 	pickup.collected.connect(on_node_collected)
 	$Objects.add_child(pickup)
@@ -118,6 +128,8 @@ func _spawn_companion() -> void:
 func _restore_collected() -> void:
 	var collected: Array = GameState.world.get("collected_nodes", [])
 
+	# One-time respawn: when all food nodes have been picked up, clear the list so
+	# they reappear. The respawn_used flag prevents this happening a second time.
 	if collected.size() >= FOOD_NODES.size() \
 			and not GameState.world.get("respawn_used", false):
 		GameState.world["collected_nodes"] = []
@@ -297,40 +309,28 @@ func _fill_slot(list: ItemList, label: Label, want_accessory: bool) -> void:
 		list.set_item_metadata(list.item_count - 1, id)
 
 func _fmt_bonus(bonus: Dictionary) -> String:
-	const TAGS := {
-		"speed":          "SPD",
-		"resilience":     "RES",
-		"forage":         "FOR",
-		"carry_capacity": "BAG",
-		"xp_boost":       "XP",
-		"luck":           "LCK",
-	}
 	var parts: Array = []
 	for key: String in bonus:
 		var val := int(bonus[key])
-		var tag := TAGS.get(key, key.to_upper())
+		var tag := BONUS_TAGS.get(key, key.to_upper())
 		var sfx := "%" if key == "xp_boost" else ""
 		parts.append("%s +%d%s" % [tag, val, sfx])
 	return "  ".join(parts)
 
 func _refresh_bonus_label() -> void:
-	const TAGS := {
-		"speed": "SPD", "resilience": "RES", "forage": "FOR",
-		"carry_capacity": "BAG", "xp_boost": "XP", "luck": "LCK",
-	}
 	var parts: Array = []
 	for k: String in GameState.player.clothing_bonuses:
 		var v := int(GameState.player.clothing_bonuses[k])
 		if v <= 0:
 			continue
-		var tag := TAGS.get(k, k.to_upper())
+		var tag := BONUS_TAGS.get(k, k.to_upper())
 		var sfx := "%" if k == "xp_boost" else ""
 		parts.append("%s +%d%s" % [tag, v, sfx])
 	for k: String in GameState.creature.bonus_stats:
 		var v := int(GameState.creature.bonus_stats[k])
 		if v <= 0:
 			continue
-		var tag := TAGS.get(k, k.to_upper())
+		var tag := BONUS_TAGS.get(k, k.to_upper())
 		parts.append("C-%s +%d" % [tag, v])
 	$UI/EquipPanel/VBox/BonusLabel.text = \
 		"Active bonuses: " + ("  \u00b7  ".join(parts) if not parts.is_empty() else "\u2014")

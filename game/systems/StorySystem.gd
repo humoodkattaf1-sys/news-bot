@@ -9,29 +9,33 @@ static func mark_seen(event_id: String) -> void:
 static func has_seen(event_id: String) -> bool:
 	return GameState.story.has_seen(event_id)
 
+## Evaluates a single condition key/value pair against live game state.
+## Called by both should_trigger() and MilestoneSystem.condition_met() so the
+## two systems stay in sync without duplicating match logic.
+static func eval_condition(key: String, value: Variant) -> bool:
+	match key:
+		"creature_evolved":
+			return GameState.creature.evolved == bool(value)
+		"creature_level":
+			return GameState.creature.level >= int(value)
+		"has_item":
+			return GameState.player.has_item(str(value))
+		"food_gathered_total":
+			return GameState.world.get("food_gathered_total", 0) >= int(value)
+	push_warning("StorySystem: unknown condition key '%s'" % key)
+	return true
+
 ## Returns true when all trigger conditions are satisfied and the event is unseen.
-## Extend the match block here to support new trigger condition keys.
+## Add new condition types in eval_condition() above; this function needs no edit.
 static func should_trigger(event_id: String) -> bool:
 	if has_seen(event_id):
 		return false
 	var event := get_event(event_id)
 	if event.is_empty():
 		return false
-	var conditions: Dictionary = event.get("trigger_condition", {})
-	for key: String in conditions:
-		match key:
-			"creature_evolved":
-				if GameState.creature.evolved != conditions[key]:
-					return false
-			"creature_level":
-				if GameState.creature.level < int(conditions[key]):
-					return false
-			"has_item":
-				if not GameState.player.has_item(str(conditions[key])):
-					return false
-			"food_gathered_total":
-				if GameState.world.get("food_gathered_total", 0) < int(conditions[key]):
-					return false
+	for key: String in event.get("trigger_condition", {}):
+		if not eval_condition(key, event["trigger_condition"][key]):
+			return false
 	return true
 
 ## Applies all side-effects of a story event: item grants, area unlocks,

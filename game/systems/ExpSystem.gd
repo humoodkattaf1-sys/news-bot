@@ -11,7 +11,7 @@ static func boosted_amount(base_amount: int) -> int:
 static func apply_exp(creature: CreatureData, amount: int) -> bool:
 	creature.exp += boosted_amount(amount)
 	if creature.exp >= exp_to_next(creature.level):
-		creature.exp  -= exp_to_next(creature.level)
+		creature.exp  -= exp_to_next(creature.level)  # carry remainder into next level
 		creature.level += 1
 		return true
 	return false

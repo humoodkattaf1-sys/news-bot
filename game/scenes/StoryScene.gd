@@ -7,20 +7,20 @@ enum _Phase { DIALOGUE, GROWTH }
 var _lines:        Array  = []
 var _current_line: int    = 0
 var _phase:        _Phase = _Phase.DIALOGUE
-var _old_stage:    int    = 0
+var _initial_age_stage:    int    = 0
 var _age_advanced: bool   = false
 
 func _ready() -> void:
 	var event  := StorySystem.get_event(EVENT_ID)
 	_lines      = event.get("dialogue", [])
-	_old_stage  = GameState.player.age_stage
+	_initial_age_stage  = GameState.player.age_stage
 
 	# Apply rewards and mark seen exactly once; guards against replayed loads.
 	if not StorySystem.has_seen(EVENT_ID):
 		StorySystem.apply_rewards(EVENT_ID)
 		StorySystem.mark_seen(EVENT_ID)
 
-	_age_advanced = GameState.player.age_stage > _old_stage
+	_age_advanced = GameState.player.age_stage > _initial_age_stage
 	_show_dialogue()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -55,7 +55,7 @@ func _show_growth() -> void:
 	$UI/DialoguePanel.visible = false
 	$UI/GrowthPanel.visible   = true
 
-	var old_def := DataLoader.get_growth_stage(_old_stage)
+	var old_def := DataLoader.get_growth_stage(_initial_age_stage)
 	var new_def := DataLoader.get_growth_stage(GameState.player.age_stage)
 
 	$UI/GrowthPanel/VBox/GrowthLabel.text = "%s  \u2192  %s" % [
