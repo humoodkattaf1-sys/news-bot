@@ -93,7 +93,7 @@ anchor_top = 1.0
 anchor_bottom = 1.0
 offset_top = -28.0
 horizontal_alignment = 1
-text = "WASD — Move     I — Inventory     E — Interact with stone"
+text = "WASD — Move     I — Bag     Q — Equipment     E — Interact with stone"
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.40, 0.52, 0.36, 1.0)
 
@@ -157,3 +157,98 @@ theme_override_colors/font_color = Color(0.56, 0.72, 0.48, 1.0)
 
 [node name="InvList" type="ItemList" parent="UI/InventoryPanel/VBox"]
 custom_minimum_size = Vector2(490, 220)
+
+; Equipment panel — centred, hidden by default
+[node name="EquipPanel" type="PanelContainer" parent="UI"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -230.0
+offset_right = 360.0
+offset_bottom = 230.0
+visible = false
+
+[node name="VBox" type="VBoxContainer" parent="UI/EquipPanel"]
+theme_override_constants/separation = 10
+
+[node name="PanelTitle" type="Label" parent="UI/EquipPanel/VBox"]
+text = "Equipment"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.85, 0.96, 0.72, 1.0)
+
+[node name="HBox" type="HBoxContainer" parent="UI/EquipPanel/VBox"]
+theme_override_constants/separation = 10
+
+; ── Protagonist outfit column ─────────────────────────────────────────────────
+[node name="OutfitBox" type="VBoxContainer" parent="UI/EquipPanel/VBox/HBox"]
+custom_minimum_size = Vector2(310, 0)
+theme_override_constants/separation = 5
+
+[node name="OutfitTitle" type="Label" parent="UI/EquipPanel/VBox/HBox/OutfitBox"]
+text = "Protagonist Outfit"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.78, 0.90, 0.65, 1.0)
+
+[node name="EquippedOutfit" type="Label" parent="UI/EquipPanel/VBox/HBox/OutfitBox"]
+text = "Equipped: \u2014"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.60, 0.78, 0.52, 0.90)
+
+[node name="OutfitHint" type="Label" parent="UI/EquipPanel/VBox/HBox/OutfitBox"]
+text = "Double-click to equip / unequip"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.50, 0.62, 0.42, 0.75)
+
+[node name="OutfitList" type="ItemList" parent="UI/EquipPanel/VBox/HBox/OutfitBox"]
+custom_minimum_size = Vector2(302, 172)
+
+; ── Vertical divider ──────────────────────────────────────────────────────────
+[node name="VSep" type="VSeparator" parent="UI/EquipPanel/VBox/HBox"]
+
+; ── Creature accessory column ─────────────────────────────────────────────────
+[node name="AccessoryBox" type="VBoxContainer" parent="UI/EquipPanel/VBox/HBox"]
+custom_minimum_size = Vector2(310, 0)
+theme_override_constants/separation = 5
+
+[node name="AccessoryTitle" type="Label" parent="UI/EquipPanel/VBox/HBox/AccessoryBox"]
+text = "Companion Accessory"
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.78, 0.90, 0.65, 1.0)
+
+[node name="EquippedAccessory" type="Label" parent="UI/EquipPanel/VBox/HBox/AccessoryBox"]
+text = "Equipped: \u2014"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.60, 0.78, 0.52, 0.90)
+
+[node name="AccessoryHint" type="Label" parent="UI/EquipPanel/VBox/HBox/AccessoryBox"]
+text = "Double-click to equip / unequip"
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.50, 0.62, 0.42, 0.75)
+
+[node name="AccessoryList" type="ItemList" parent="UI/EquipPanel/VBox/HBox/AccessoryBox"]
+custom_minimum_size = Vector2(302, 172)
+
+[node name="LockedLabel" type="Label" parent="UI/EquipPanel/VBox/HBox/AccessoryBox"]
+custom_minimum_size = Vector2(302, 172)
+text = "Slot locked\nReach Teen to unlock"
+horizontal_alignment = 1
+vertical_alignment = 1
+visible = false
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.50, 0.50, 0.50, 0.70)
+
+; ── Active bonuses strip ──────────────────────────────────────────────────────
+[node name="BonusLabel" type="Label" parent="UI/EquipPanel/VBox"]
+horizontal_alignment = 1
+text = "Active bonuses: \u2014"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.92, 0.80, 0.38, 1.0)
+
+[node name="CloseHint" type="Label" parent="UI/EquipPanel/VBox"]
+horizontal_alignment = 1
+text = "[ Q ] close"
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.50, 0.65, 0.42, 0.80)

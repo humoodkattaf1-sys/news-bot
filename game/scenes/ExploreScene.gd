@@ -7,22 +7,19 @@ const StoneScene     := preload("res://entities/EvolutionStone.tscn")
 
 # ── Map geometry ──────────────────────────────────────────────────────────────
 
-# Bark-brown wall colour
 const WALL_COLOR := Color(0.20, 0.14, 0.08, 1.0)
 
-# Rect2(x, y, w, h) in world pixels. 1280×720 viewport, 64 px tile unit.
 const WALLS: Array = [
-	Rect2(   0,   0, 1280,  64),   # top border
-	Rect2(   0, 656, 1280,  64),   # bottom border
-	Rect2(   0,   0,   64, 720),   # left border
-	Rect2(1216,   0,   64, 720),   # right border
-	Rect2( 320, 192,   64, 192),   # interior pillar A
-	Rect2( 768, 320,   64, 192),   # interior pillar B
-	Rect2( 512, 448,  192,  64),   # interior block  C
-	Rect2( 960, 128,   64, 256),   # interior pillar D
+	Rect2(   0,   0, 1280,  64),
+	Rect2(   0, 656, 1280,  64),
+	Rect2(   0,   0,   64, 720),
+	Rect2(1216,   0,   64, 720),
+	Rect2( 320, 192,   64, 192),
+	Rect2( 768, 320,   64, 192),
+	Rect2( 512, 448,  192,  64),
+	Rect2( 960, 128,   64, 256),
 ]
 
-# [food_id, world_position, unique_node_name]
 const FOOD_NODES: Array = [
 	["berrysprig",   Vector2( 180, 160), "food_0"],
 	["berrysprig",   Vector2( 600, 200), "food_1"],
@@ -51,6 +48,7 @@ func _ready() -> void:
 	_spawn_companion()
 	_restore_collected()
 	_setup_ui()
+	EquipSystem.recalc_bonuses()
 
 # ── Map building ──────────────────────────────────────────────────────────────
 
@@ -102,8 +100,6 @@ func _spawn_companion() -> void:
 	comp.target = _player
 	add_child(comp)
 
-# Remove nodes already collected in a previous session.
-# If all food was collected, allow one respawn before locking it out.
 func _restore_collected() -> void:
 	var collected: Array = GameState.world.get("collected_nodes", [])
 
@@ -123,6 +119,9 @@ func _restore_collected() -> void:
 func _setup_ui() -> void:
 	$UI/InventoryPanel.visible = false
 	$UI/InventoryPanel/VBox/InvList.item_activated.connect(_on_inv_item_activated)
+	$UI/EquipPanel.visible = false
+	$UI/EquipPanel/VBox/HBox/OutfitBox/OutfitList.item_activated.connect(_on_outfit_activated)
+	$UI/EquipPanel/VBox/HBox/AccessoryBox/AccessoryList.item_activated.connect(_on_accessory_activated)
 	_refresh_hud()
 
 func _refresh_hud() -> void:
@@ -141,16 +140,16 @@ func _refresh_items_label() -> void:
 	$UI/ItemsLabel.text = "[ I ]  Items: %d / %d" % [total, GrowthSystem.carry_capacity()]
 
 func _refresh_resource_strip() -> void:
-	# Show each food type and count in a compact strip just below the top bar.
 	var parts: Array = []
 	for entry: Dictionary in InventorySystem.get_display_list(GameState.player):
 		if entry["is_food"]:
-			parts.append("%s ×%d" % [entry["display_name"], entry["count"]])
+			parts.append("%s \u00d7%d" % [entry["display_name"], entry["count"]])
 	$UI/ResourceStrip.text = "  ".join(parts)
 
-# ── Inventory panel ───────────────────────────────────────────────────────────
+# ── Bag panel (I) ─────────────────────────────────────────────────────────────
 
 func _toggle_inventory() -> void:
+	$UI/EquipPanel.visible = false
 	var panel := $UI/InventoryPanel
 	panel.visible = not panel.visible
 	if panel.visible:
@@ -166,7 +165,7 @@ func _populate_creature_info() -> void:
 
 	var exp_need: int = ExpSystem.exp_to_next(c.level)
 	box.get_node("CreaturePanelLevel").text = \
-		"Lv. %d   ·   EXP  %d / %d" % [c.level, c.exp, exp_need]
+		"Lv. %d   \u00b7   EXP  %d / %d" % [c.level, c.exp, exp_need]
 
 	box.get_node("CreaturePanelExpBar").value = ExpSystem.progress_ratio(c) * 100.0
 
@@ -182,7 +181,7 @@ func _populate_creature_info() -> void:
 		if c.level >= req_level and GameState.player.has_item(req_item):
 			evo_text = "Ready to evolve!   Visit the stone."
 		elif c.level >= req_level:
-			evo_text = "Level reached — need %s" % item_name
+			evo_text = "Level reached \u2014 need %s" % item_name
 		else:
 			evo_text = "Evolves at Lv. %d   +   %s" % [req_level, item_name]
 
@@ -193,10 +192,10 @@ func _populate_inv_list() -> void:
 	list.clear()
 	var items := InventorySystem.get_display_list(GameState.player)
 	if items.is_empty():
-		list.add_item("— bag is empty —")
+		list.add_item("\u2014 bag is empty \u2014")
 		return
 	for entry: Dictionary in items:
-		var row := "%s   ×%d" % [entry["display_name"], entry["count"]]
+		var row := "%s   \u00d7%d" % [entry["display_name"], entry["count"]]
 		if entry["is_food"]:
 			row += "      +%d EXP" % entry["exp_value"]
 		list.add_item(row)
@@ -211,16 +210,137 @@ func _on_inv_item_activated(index: int) -> void:
 	if food_def.is_empty():
 		return
 
-	var levelled_up := ExpSystem.apply_exp(GameState.creature, food_def["exp_value"])
+	var base_exp    := food_def["exp_value"] as int
+	var actual_exp  := ExpSystem.boosted_amount(base_exp)
+	var levelled_up := ExpSystem.apply_exp(GameState.creature, base_exp)
 	InventorySystem.remove(GameState.player, item_id)
 	_populate_creature_info()
 	_populate_inv_list()
 	_refresh_hud()
 
-	var msg := "Fed %s   (+%d EXP)" % [food_def.get("display_name", ""), food_def.get("exp_value", 0)]
+	var msg := "Fed %s   (+%d EXP)" % [food_def.get("display_name", ""), actual_exp]
 	if levelled_up:
-		msg += "   —   Level up!  Lv. %d" % GameState.creature.level
+		msg += "   \u2014   Level up!  Lv. %d" % GameState.creature.level
 	show_hint(msg)
+
+# ── Equipment panel (Q) ───────────────────────────────────────────────────────
+
+func _toggle_equipment() -> void:
+	$UI/InventoryPanel.visible = false
+	var panel := $UI/EquipPanel
+	panel.visible = not panel.visible
+	if panel.visible:
+		_populate_equip_panel()
+
+func _populate_equip_panel() -> void:
+	_fill_slot(
+		$UI/EquipPanel/VBox/HBox/OutfitBox/OutfitList,
+		$UI/EquipPanel/VBox/HBox/OutfitBox/EquippedOutfit,
+		false
+	)
+	var locked    := GrowthSystem.clothing_slots() < 2
+	var acc_box   := $UI/EquipPanel/VBox/HBox/AccessoryBox
+	acc_box.get_node("AccessoryList").visible = not locked
+	acc_box.get_node("LockedLabel").visible   = locked
+	if not locked:
+		_fill_slot(
+			acc_box.get_node("AccessoryList"),
+			acc_box.get_node("EquippedAccessory"),
+			true
+		)
+	_refresh_bonus_label()
+
+func _fill_slot(list: ItemList, label: Label, want_accessory: bool) -> void:
+	list.clear()
+	var unlocked: Array = GameState.story.unlocked_clothing
+	var available := DataLoader.get_all_clothing().filter(
+		func(d: Dictionary) -> bool:
+			return d.get("id", "") in unlocked \
+				and d.get("is_creature_accessory", false) == want_accessory
+	)
+
+	var eq_id := EquipSystem.equipped_in_slot(want_accessory)
+	if eq_id.is_empty():
+		label.text = "Equipped: \u2014"
+	else:
+		var ed := DataLoader.get_clothing(eq_id)
+		label.text = "Equipped: %s" % ed.get("display_name", eq_id)
+
+	if available.is_empty():
+		list.add_item("\u2014 nothing unlocked yet \u2014")
+		return
+
+	for d: Dictionary in available:
+		var id  := d.get("id", "")
+		var pfx := "[eq]  " if EquipSystem.is_equipped(id) else "         "
+		var row := pfx + d.get("display_name", id) \
+			+ "   " + _fmt_bonus(d.get("stat_bonus", {}))
+		list.add_item(row)
+		list.set_item_metadata(list.item_count - 1, id)
+
+func _fmt_bonus(bonus: Dictionary) -> String:
+	const TAGS := {
+		"speed":          "SPD",
+		"resilience":     "RES",
+		"forage":         "FOR",
+		"carry_capacity": "BAG",
+		"xp_boost":       "XP",
+		"luck":           "LCK",
+	}
+	var parts: Array = []
+	for key: String in bonus:
+		var val := int(bonus[key])
+		var tag := TAGS.get(key, key.to_upper())
+		var sfx := "%" if key == "xp_boost" else ""
+		parts.append("%s +%d%s" % [tag, val, sfx])
+	return "  ".join(parts)
+
+func _refresh_bonus_label() -> void:
+	const TAGS := {
+		"speed": "SPD", "resilience": "RES", "forage": "FOR",
+		"carry_capacity": "BAG", "xp_boost": "XP", "luck": "LCK",
+	}
+	var parts: Array = []
+	for k: String in GameState.player.clothing_bonuses:
+		var v := int(GameState.player.clothing_bonuses[k])
+		if v <= 0:
+			continue
+		var tag := TAGS.get(k, k.to_upper())
+		var sfx := "%" if k == "xp_boost" else ""
+		parts.append("%s +%d%s" % [tag, v, sfx])
+	for k: String in GameState.creature.bonus_stats:
+		var v := int(GameState.creature.bonus_stats[k])
+		if v <= 0:
+			continue
+		var tag := TAGS.get(k, k.to_upper())
+		parts.append("C-%s +%d" % [tag, v])
+	$UI/EquipPanel/VBox/BonusLabel.text = \
+		"Active bonuses: " + ("  \u00b7  ".join(parts) if not parts.is_empty() else "\u2014")
+
+func _toggle_equip_item(item_id: String) -> void:
+	if item_id.is_empty():
+		return
+	var def := DataLoader.get_clothing(item_id)
+	if def.is_empty():
+		return
+	if EquipSystem.is_equipped(item_id):
+		EquipSystem.unequip(item_id)
+		show_hint("Removed %s" % def.get("display_name", ""))
+	else:
+		if EquipSystem.equip(item_id):
+			show_hint("Equipped %s" % def.get("display_name", ""))
+		else:
+			show_hint("Slot not available yet")
+	_populate_equip_panel()
+	_refresh_hud()
+
+func _on_outfit_activated(index: int) -> void:
+	var list := $UI/EquipPanel/VBox/HBox/OutfitBox/OutfitList
+	_toggle_equip_item(str(list.get_item_metadata(index)))
+
+func _on_accessory_activated(index: int) -> void:
+	var list := $UI/EquipPanel/VBox/HBox/AccessoryBox/AccessoryList
+	_toggle_equip_item(str(list.get_item_metadata(index)))
 
 # ── Signals from world nodes ──────────────────────────────────────────────────
 
@@ -235,7 +355,6 @@ func on_evolution_stone_entered() -> void:
 	var c   := GameState.creature
 	var def := DataLoader.get_creature(c.creature_id)
 
-	# Already at max stage — no further evolution possible.
 	if c.evolved or not def.get("evolved_form_id"):
 		show_hint("%s is fully evolved." % def.get("display_name", "?"))
 		return
@@ -274,3 +393,5 @@ func show_hint(text: String, duration: float = 2.8) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("open_inventory"):
 		_toggle_inventory()
+	elif event.is_action_pressed("open_equipment"):
+		_toggle_equipment()

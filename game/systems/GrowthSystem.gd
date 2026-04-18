@@ -4,13 +4,17 @@ class_name GrowthSystem
 static func current_stage_def() -> Dictionary:
 	return DataLoader.get_growth_stage(GameState.player.age_stage)
 
-## Movement speed in pixels/second for the current growth stage.
+## Movement speed in pixels/second: base stage value + protagonist speed clothing bonus.
 static func speed() -> float:
-	return float(current_stage_def().get("speed", 170))
+	var base: float  = float(current_stage_def().get("speed", 170))
+	var bonus: float = float(GameState.player.clothing_bonuses.get("speed", 0))
+	return base + bonus
 
-## Maximum total item count the player can carry at the current growth stage.
+## Carry capacity: base stage value + protagonist carry_capacity clothing bonus.
 static func carry_capacity() -> int:
-	return int(current_stage_def().get("carry_capacity", 15))
+	var base: int  = int(current_stage_def().get("carry_capacity", 15))
+	var bonus: int = int(GameState.player.clothing_bonuses.get("carry_capacity", 0))
+	return base + bonus
 
 ## Number of clothing slots available (1 = protagonist outfit only, 2 = + creature accessory).
 static func clothing_slots() -> int:

@@ -14,7 +14,14 @@
     ],
     "grants_item": null,
     "unlocks_area": null,
-    "unlocks_clothing": ["forest_cloak", "swift_band", "bark_vest"],
+    "unlocks_clothing": [
+      "forest_cloak",
+      "gatherer_sash",
+      "ember_wrap",
+      "swift_band",
+      "bark_vest",
+      "grove_charm"
+    ],
     "advances_player_age": true
   }
 ]
