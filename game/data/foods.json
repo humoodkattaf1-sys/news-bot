@@ -19,5 +19,19 @@
     "description": "A tiny glass vial of morning dew. Potent.",
     "exp_value": 100,
     "rarity": "rare"
+  },
+  {
+    "id": "brightcap",
+    "display_name": "Brightcap",
+    "description": "A luminous mushroom found where meadow meets shadow.",
+    "exp_value": 45,
+    "rarity": "uncommon"
+  },
+  {
+    "id": "river_pearl",
+    "display_name": "River Pearl",
+    "description": "Smooth and dense, formed where the current slows to stillness.",
+    "exp_value": 150,
+    "rarity": "rare"
   }
 ]

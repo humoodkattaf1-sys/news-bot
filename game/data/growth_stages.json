@@ -6,7 +6,9 @@
     "speed": 170,
     "carry_capacity": 15,
     "clothing_slots": 1,
-    "draw_size": 22
+    "draw_size": 22,
+    "transition_title": null,
+    "transition_body": null
   },
   {
     "id": "teen",
@@ -15,7 +17,9 @@
     "speed": 200,
     "carry_capacity": 20,
     "clothing_slots": 2,
-    "draw_size": 27
+    "draw_size": 27,
+    "transition_title": "Growing Up",
+    "transition_body": "You move differently now — quicker, steadier. You can carry more, and wear something new alongside what you already have."
   },
   {
     "id": "young_adult",
@@ -24,6 +28,8 @@
     "speed": 215,
     "carry_capacity": 25,
     "clothing_slots": 2,
-    "draw_size": 32
+    "draw_size": 32,
+    "transition_title": "Coming of Age",
+    "transition_body": "The grove looks smaller than it used to. You stand taller. Your companion walks a little straighter beside you."
   }
 ]

@@ -46,5 +46,21 @@
     "is_creature_accessory": true,
     "stat_bonus": { "forage": 2, "luck": 1 },
     "unlock_condition": "story_event_1"
+  },
+  {
+    "id": "meadow_hood",
+    "display_name": "Meadow Hood",
+    "description": "Woven from meadow reeds. Keeps your eyes sharp in open fields.",
+    "is_creature_accessory": false,
+    "stat_bonus": { "luck": 2 },
+    "unlock_condition": "story_event_2"
+  },
+  {
+    "id": "current_clasp",
+    "display_name": "Current Clasp",
+    "description": "A polished river-stone clasp at your companion's collar. Even-tempered, like water.",
+    "is_creature_accessory": true,
+    "stat_bonus": { "speed": 1, "resilience": 1 },
+    "unlock_condition": "story_event_2"
   }
 ]
