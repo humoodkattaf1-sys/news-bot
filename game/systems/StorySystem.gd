@@ -22,8 +22,8 @@ static func eval_condition(key: String, value: Variant) -> bool:
 			return GameState.player.has_item(str(value))
 		"food_gathered_total":
 			return GameState.world.get("food_gathered_total", 0) >= int(value)
-	push_warning("StorySystem: unknown condition key '%s'" % key)
-	return true
+	push_warning("StorySystem: unknown condition key '%s' — failing closed" % key)
+	return false
 
 ## Returns true when all trigger conditions are satisfied and the event is unseen.
 ## Add new condition types in eval_condition() above; this function needs no edit.
@@ -46,15 +46,15 @@ static func apply_rewards(event_id: String) -> void:
 	if event.is_empty():
 		return
 
-	# Grant item
-	var item: String = event.get("grants_item", "") if event.get("grants_item") != null else ""
-	if not item.is_empty():
-		InventorySystem.add(GameState.player, item)
+	# Grant item — field is null in JSON when no item is awarded
+	var item: Variant = event.get("grants_item")
+	if item != null:
+		InventorySystem.add(GameState.player, str(item))
 
-	# Unlock area
-	var area: String = event.get("unlocks_area", "") if event.get("unlocks_area") != null else ""
-	if not area.is_empty():
-		GameState.story.unlock_area(area)
+	# Unlock area — field is null in JSON when no area is unlocked
+	var area: Variant = event.get("unlocks_area")
+	if area != null:
+		GameState.story.unlock_area(str(area))
 
 	# Unlock clothing items
 	for clothing_id: String in event.get("unlocks_clothing", []):

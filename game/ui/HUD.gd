@@ -15,10 +15,7 @@ func refresh() -> void:
 	$CreatureLabel.text = "%s   Lv. %d" % [def.get("display_name", "?"), c.level]
 	$ExpBar.value       = ExpSystem.progress_ratio(c) * 100.0
 
-	var total: int = 0
-	for v: int in GameState.player.inventory.values():
-		total += v
-	$ItemsLabel.text = "[ I ]  Items: %d / %d" % [total, GrowthSystem.carry_capacity()]
+	$ItemsLabel.text = "[ I ]  Items: %d / %d" % [InventorySystem.total_count(GameState.player), GrowthSystem.carry_capacity()]
 
 	var food_parts: Array = []
 	for entry: Dictionary in InventorySystem.get_display_list(GameState.player):

@@ -288,7 +288,7 @@ func on_evolution_stone_entered() -> void:
 		SceneManager.go_to("evolution")
 		return
 
-	var req_level : int    = def.get("evolution_level", 10)
+	var req_level : int    = def.get("evolution_level", 999)
 	var req_item  : String = def.get("evolution_item_id", "")
 	var item_name : String = DataLoader.get_evolution_item(req_item).get("display_name", req_item)
 	var has_level : bool   = c.level >= req_level

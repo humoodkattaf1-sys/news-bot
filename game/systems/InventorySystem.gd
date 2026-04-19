@@ -12,6 +12,12 @@ static func has(player: PlayerData, item_id: String, amount: int = 1) -> bool:
 static func count(player: PlayerData, item_id: String) -> int:
 	return player.item_count(item_id)
 
+static func total_count(player: PlayerData) -> int:
+	var total: int = 0
+	for v: int in player.inventory.values():
+		total += v
+	return total
+
 # Returns a flat list ready for UI rendering.
 # Each entry: { id, display_name, count, exp_value, is_food }
 static func get_display_list(player: PlayerData) -> Array:

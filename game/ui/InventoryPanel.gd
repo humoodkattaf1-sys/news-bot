@@ -59,11 +59,11 @@ func _on_item_activated(index: int) -> void:
 		return
 
 	var base_exp    := food_def["exp_value"] as int
-	var actual_exp  := ExpSystem.boosted_amount(base_exp)
+	var boosted_exp := ExpSystem.boosted_amount(base_exp)
 	var levelled_up := ExpSystem.apply_exp(GameState.creature, base_exp)
 	InventorySystem.remove(GameState.player, item_id)
 
-	var msg := "Fed %s   (+%d EXP)" % [food_def.get("display_name", ""), actual_exp]
+	var msg := "Fed %s   (+%d EXP)" % [food_def.get("display_name", ""), boosted_exp]
 	if levelled_up:
 		msg += "   \u2014   Level up!  Lv. %d" % GameState.creature.level
 
