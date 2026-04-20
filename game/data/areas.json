@@ -1,0 +1,28 @@
+[
+  {
+    "id": "whispering_grove",
+    "display_name": "Whispering Grove",
+    "description": "A dense forest of silver-barked trees. Quiet, but watching.",
+    "unlock_condition": null,
+    "food_nodes": [
+      { "food_id": "berrysprig",   "count": 4 },
+      { "food_id": "sunmoss",      "count": 2 },
+      { "food_id": "dewdrop_vial", "count": 1 }
+    ],
+    "evolution_item_node": "moonstone_shard",
+    "story_event_trigger": "story_event_1"
+  },
+  {
+    "id": "sunken_meadow",
+    "display_name": "Sunken Meadow",
+    "description": "A low, wide clearing where the ground stays soft year-round. The air smells like rain.",
+    "unlock_condition": "story_event_1",
+    "food_nodes": [
+      { "food_id": "brightcap",   "count": 3 },
+      { "food_id": "berrysprig",  "count": 2 },
+      { "food_id": "river_pearl", "count": 1 }
+    ],
+    "evolution_item_node": "amber_core",
+    "story_event_trigger": "story_event_2"
+  }
+]

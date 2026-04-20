@@ -1,0 +1,37 @@
+[
+  {
+    "id": "berrysprig",
+    "display_name": "Berry Sprig",
+    "description": "Small red berries on a thin branch.",
+    "exp_value": 30,
+    "rarity": "common"
+  },
+  {
+    "id": "sunmoss",
+    "display_name": "Sun Moss",
+    "description": "Warm, golden moss that grows on sunlit stones.",
+    "exp_value": 60,
+    "rarity": "uncommon"
+  },
+  {
+    "id": "dewdrop_vial",
+    "display_name": "Dewdrop Vial",
+    "description": "A tiny glass vial of morning dew. Potent.",
+    "exp_value": 100,
+    "rarity": "rare"
+  },
+  {
+    "id": "brightcap",
+    "display_name": "Brightcap",
+    "description": "A luminous mushroom found where meadow meets shadow.",
+    "exp_value": 45,
+    "rarity": "uncommon"
+  },
+  {
+    "id": "river_pearl",
+    "display_name": "River Pearl",
+    "description": "Smooth and dense, formed where the current slows to stillness.",
+    "exp_value": 150,
+    "rarity": "rare"
+  }
+]

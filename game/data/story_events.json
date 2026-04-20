@@ -1,0 +1,47 @@
+[
+  {
+    "id": "story_event_1",
+    "trigger_condition": {
+      "creature_evolved": true
+    },
+    "dialogue": [
+      "The Grove stirs. The trees lean inward.",
+      "An elder figure emerges from the mist.",
+      "\"You have cared well. Your companion has answered.\"",
+      "\"The bond between you has deepened you both.\"",
+      "A warm light settles around your shoulders.",
+      "\"You carry more now — in heart, and in stride.\""
+    ],
+    "grants_item": null,
+    "unlocks_area": "sunken_meadow",
+    "unlocks_clothing": [
+      "forest_cloak",
+      "gatherer_sash",
+      "ember_wrap",
+      "swift_band",
+      "bark_vest",
+      "grove_charm"
+    ],
+    "advances_player_age": true
+  },
+  {
+    "id": "story_event_2",
+    "trigger_condition": {
+      "creature_evolved": true,
+      "food_gathered_total": 15
+    },
+    "dialogue": [
+      "The meadow hums with something low and ancient.",
+      "You find a hollow in the bank, shimmering faintly.",
+      "\"This place remembers,\" the elder says from a distance.",
+      "\"Leave something here. Come back different.\""
+    ],
+    "grants_item": null,
+    "unlocks_area": null,
+    "unlocks_clothing": [
+      "meadow_hood",
+      "current_clasp"
+    ],
+    "advances_player_age": false
+  }
+]
