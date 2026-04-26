@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نظام أوامر هواللي | Hawalli Sheets Agent</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <!-- ── Header ────────────────────────────────── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <span class="logo-icon">🛡️</span>
+        <div>
+          <h1>نظام أوامر هواللي</h1>
+          <p class="header-sub">Hawalli Sheets Command Agent</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">جاري الاتصال...</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="layout">
+
+      <!-- ── Right panel: Command Input ───────── -->
+      <div class="panel panel-primary">
+
+        <!-- Token input -->
+        <div class="card mb-md">
+          <div class="card-header">
+            <span>🔑</span> رمز المشرف (Admin Token)
+          </div>
+          <div class="card-body">
+            <input type="password" id="adminToken" class="input" placeholder="أدخل رمز المشرف..." />
+            <p class="hint">يُحفظ في الجلسة فقط ولا يُرسل إلا مع الأوامر</p>
+          </div>
+        </div>
+
+        <!-- Command input -->
+        <div class="card mb-md">
+          <div class="card-header">
+            <span>⌨️</span> إدخال الأمر
+          </div>
+          <div class="card-body">
+            <textarea
+              id="commandInput"
+              class="textarea"
+              rows="3"
+              placeholder="اكتب الأمر بالعربي... مثال: سجل أحمد محمد في نوبة الصباح اليوم"
+            ></textarea>
+            <div class="input-row">
+              <input type="text" id="userInput" class="input input-sm" placeholder="اسم المستخدم (اختياري)" value="مشرف" />
+              <button id="sendBtn" class="btn btn-primary" onclick="sendCommand()">
+                <span>🚀</span> تنفيذ
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick command buttons -->
+        <div class="card mb-md">
+          <div class="card-header"><span>⚡</span> أوامر سريعة</div>
+          <div class="card-body">
+            <div class="quick-btns">
+              <button class="btn btn-outline quick-btn" onclick="setCommand('طلع كشف اليوم')">كشف اليوم</button>
+              <button class="btn btn-outline quick-btn" onclick="setCommand('سو كشف نهاية اليوم')">تقرير نهاية اليوم</button>
+              <button class="btn btn-outline quick-btn" onclick="setCommand('اعرض النواقص اليوم')">النواقص</button>
+              <button class="btn btn-outline quick-btn" onclick="setCommand('انقل كل الموجودين في نوبة الليل إلى كشف الحجز لليوم التالي')">نقل نوبة الليل</button>
+              <button class="btn btn-outline quick-btn" onclick="setCommand('جهز الشيتات')">تجهيز الجداول</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result card -->
+        <div class="card" id="resultCard" style="display:none;">
+          <div class="card-header" id="resultHeader"><span>📋</span> نتيجة الأمر</div>
+          <div class="card-body">
+            <div id="resultContent" class="result-content"></div>
+            <!-- Approval buttons (shown when status === 'preview') -->
+            <div id="approvalActions" class="approval-actions" style="display:none;">
+              <button class="btn btn-success" id="approveBtn" onclick="approveCommand()">
+                <span>✅</span> اعتماد وتنفيذ
+              </button>
+              <button class="btn btn-danger" id="rejectBtn" onclick="rejectCommand()">
+                <span>❌</span> رفض
+              </button>
+            </div>
+            <!-- Search results table -->
+            <div id="searchResults" style="display:none;"></div>
+            <!-- Attendance results table -->
+            <div id="attendanceResults" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Left panel: Status & Logs ────────── -->
+      <div class="panel panel-secondary">
+
+        <!-- Pending approvals -->
+        <div class="card mb-md">
+          <div class="card-header">
+            <span>⏳</span> الاعتمادات المعلقة
+            <span class="badge" id="pendingBadge">0</span>
+            <button class="btn-refresh" onclick="loadApprovals()" title="تحديث">↻</button>
+          </div>
+          <div class="card-body" id="approvalsContainer">
+            <p class="empty-msg">لا توجد اعتمادات معلقة</p>
+          </div>
+        </div>
+
+        <!-- Today attendance summary -->
+        <div class="card mb-md">
+          <div class="card-header">
+            <span>📊</span> حضور اليوم
+            <button class="btn-refresh" onclick="loadTodayAttendance()" title="تحديث">↻</button>
+          </div>
+          <div class="card-body" id="todayContainer">
+            <p class="empty-msg">اضغط التحديث لعرض الحضور</p>
+          </div>
+        </div>
+
+        <!-- Command logs -->
+        <div class="card">
+          <div class="card-header">
+            <span>📝</span> سجل العمليات
+            <button class="btn-refresh" onclick="loadLogs()" title="تحديث">↻</button>
+          </div>
+          <div class="card-body" id="logsContainer">
+            <p class="empty-msg">لا توجد سجلات حديثة</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Toast ─────────────────────────────────── -->
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
