@@ -20,16 +20,23 @@ function getSheetsClient() {
     );
   }
 
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: config.googleClientEmail,
-      private_key: config.googlePrivateKey,
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-
-  _sheetsClient = google.sheets({ version: 'v4', auth });
-  return _sheetsClient;
+  try {
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: config.googleClientEmail,
+        private_key: config.googlePrivateKey,
+      },
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+    _sheetsClient = google.sheets({ version: 'v4', auth });
+    return _sheetsClient;
+  } catch (err) {
+    throw new Error(
+      'فشل الاتصال بـ Google Sheets. تأكد أن GOOGLE_PRIVATE_KEY في ملف .env صحيح وكامل.\n' +
+      'ملاحظة: يجب أن يكون المفتاح بالشكل: "-----BEGIN RSA PRIVATE KEY-----\\n...\\n-----END RSA PRIVATE KEY-----"\n' +
+      `(الخطأ التقني: ${err.message})`
+    );
+  }
 }
 
 function getSpreadsheetId() {
