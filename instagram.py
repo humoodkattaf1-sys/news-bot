@@ -4,35 +4,25 @@
 فنرفعها أول على Supabase Storage (bucket عام) وبعدين نعطي رابطها لإنستقرام.
 """
 import os, time
+from datetime import datetime, timezone
 import requests
 from PIL import Image
+import store
 
 IG_USER_ID = os.getenv("IG_USER_ID", "")
 IG_TOKEN = os.getenv("IG_ACCESS_TOKEN", "")
 GRAPH = f"https://graph.facebook.com/{os.getenv('GRAPH_VERSION', 'v23.0')}"
-
-SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
 BUCKET = os.getenv("SUPABASE_BUCKET", "cards")
 
-HASHTAGS = os.getenv("IG_HASHTAGS", "#أخبار #عاجل #news")
-MAX_PER_DAY = int(os.getenv("IG_MAX_PER_DAY", "8"))
-MIN_GAP = int(os.getenv("IG_MIN_GAP_MINUTES", "60")) * 60
+HASHTAGS = os.getenv("IG_HASHTAGS") or "#أخبار #عاجل #news"
+MAX_PER_DAY = int(os.getenv("IG_MAX_PER_DAY") or "8")
+MIN_GAP = int(os.getenv("IG_MIN_GAP_MINUTES") or "60") * 60
 
-enabled = bool(IG_USER_ID and IG_TOKEN and SUPABASE_URL and SUPABASE_KEY)
-_posted = []  # أوقات آخر المنشورات
-
-
-def _sb_headers(**extra):
-    headers = {"apikey": SUPABASE_KEY, **extra}
-    # المفاتيح الجديدة (sb_secret_...) مو JWT، فتنرسل في apikey بس
-    if not SUPABASE_KEY.startswith("sb_"):
-        headers["Authorization"] = f"Bearer {SUPABASE_KEY}"
-    return headers
+enabled = bool(IG_USER_ID and IG_TOKEN and store.enabled)
 
 
 def ensure_bucket():
-    r = requests.post(f"{SUPABASE_URL}/storage/v1/bucket", timeout=30, headers=_sb_headers(),
+    r = requests.post(f"{store.SUPABASE_URL}/storage/v1/bucket", timeout=30, headers=store.headers(),
                       json={"id": BUCKET, "name": BUCKET, "public": True})
     if r.status_code not in (200, 201) and "already exists" not in r.text.lower():
         r.raise_for_status()
@@ -44,11 +34,11 @@ def _upload(png_path):
     Image.open(png_path).convert("RGB").save(jpg_path, "JPEG", quality=92)
     name = os.path.basename(jpg_path)
     with open(jpg_path, "rb") as f:
-        r = requests.post(f"{SUPABASE_URL}/storage/v1/object/{BUCKET}/{name}", timeout=60,
-                          headers=_sb_headers(**{"Content-Type": "image/jpeg", "x-upsert": "true"}),
+        r = requests.post(f"{store.SUPABASE_URL}/storage/v1/object/{BUCKET}/{name}", timeout=60,
+                          headers=store.headers(**{"Content-Type": "image/jpeg", "x-upsert": "true"}),
                           data=f)
     r.raise_for_status()
-    return f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET}/{name}"
+    return f"{store.SUPABASE_URL}/storage/v1/object/public/{BUCKET}/{name}"
 
 
 def _graph(path, **params):
@@ -72,9 +62,12 @@ def _wait_ready(creation_id):
 
 def can_post():
     """يمنع النشر الزايد: إنستقرام يعاقب الحسابات اللي تنشر بكثرة."""
-    now = time.time()
-    _posted[:] = [t for t in _posted if now - t < 86400]
-    return enabled and len(_posted) < MAX_PER_DAY and (not _posted or now - _posted[-1] >= MIN_GAP)
+    if not enabled:
+        return False
+    recent = store.ig_posts_last_day()
+    if len(recent) >= MAX_PER_DAY:
+        return False
+    return not recent or (datetime.now(timezone.utc) - recent[0]).total_seconds() >= MIN_GAP
 
 
 def post(png_path, source, title, brand=""):
@@ -86,4 +79,4 @@ def post(png_path, source, title, brand=""):
     creation_id = _graph(f"{IG_USER_ID}/media", image_url=url, caption=caption)["id"]
     _wait_ready(creation_id)
     _graph(f"{IG_USER_ID}/media_publish", creation_id=creation_id)
-    _posted.append(time.time())
+    store.record_ig_post()

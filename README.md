@@ -30,3 +30,18 @@ python main.py
 6. حط القيم كلها في `.env`.
 
 > التوكن الطويل يخلص بعد ٦٠ يوم تقريباً. إذا طلع لك خطأ `190`، جدّد التوكن.
+
+## التشغيل على GitHub Actions (بدون كمبيوتر، مجاني)
+البوت يشتغل بنفسه كل ١٥ دقيقة من ملف `.github/workflows/bot.yml`، ويحفظ الأخبار اللي أرسلها في Supabase.
+
+من الريبو في GitHub: **Settings ← Secrets and variables ← Actions**
+- تبويب **Secrets** (أي شي سري):
+  - `TELEGRAM_TOKEN`
+  - `SUPABASE_SERVICE_KEY`
+  - `IG_ACCESS_TOKEN` (اختياري)
+- تبويب **Variables** (أي شي عادي):
+  - `CHAT_ID`
+  - `BRAND`
+  - `SPONSOR_TEXT` و`IG_USER_ID` (اختياري)
+
+بعدها افتح تبويب **Actions ← News Bot ← Run workflow** عشان تجربه على طول.

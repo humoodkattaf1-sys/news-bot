@@ -1,23 +1,21 @@
-import html, json, os, time
+import html, json, os, sys, time
 import feedparser, requests
 from dotenv import load_dotenv
 from card import make_card
 
 load_dotenv()
-import instagram  # بعد load_dotenv عشان يقرأ الإعدادات
+import store, instagram  # بعد load_dotenv عشان يقرأون الإعدادات
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
-CHAT_ID = os.environ["CHAT_ID"]                      # رقمك أو @اسم_القناة
-BRAND = os.getenv("BRAND", "")                        # يطلع في أسفل كل بطاقة
-SPONSOR_TEXT = os.getenv("SPONSOR_TEXT", "")          # سطر الراعي، فاضي = بدون راعي
-SPONSOR_EVERY = int(os.getenv("SPONSOR_EVERY", "5"))  # يطلع الراعي كل كم خبر
-INTERVAL = int(os.getenv("INTERVAL", "900"))
-PER_FEED = int(os.getenv("PER_FEED", "3"))
+CHAT_ID = os.environ["CHAT_ID"]                              # رقمك أو @اسم_القناة
+BRAND = os.getenv("BRAND", "")                                # يطلع في أسفل كل بطاقة
+SPONSOR_TEXT = os.getenv("SPONSOR_TEXT", "")                  # سطر الراعي، فاضي = بدون راعي
+SPONSOR_EVERY = int(os.getenv("SPONSOR_EVERY") or "5")        # يطلع الراعي كل كم خبر
+INTERVAL = int(os.getenv("INTERVAL") or "900")
+PER_FEED = int(os.getenv("PER_FEED") or "3")
 
 API = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
-BASE = os.path.dirname(os.path.abspath(__file__))
-SENT_FILE = os.path.join(BASE, "sent.json")
-CARDS_DIR = os.path.join(BASE, "cards")
+CARDS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cards")
 
 # (الاسم، الرابط، لون البطاقة)
 RSS_FEEDS = [
@@ -26,19 +24,6 @@ RSS_FEEDS = [
     ("🟢 فرانس 24", "https://www.france24.com/ar/rss", "#0ea5e9"),
     ("📡 CNN", "http://rss.cnn.com/rss/edition.rss", "#dc2626"),
 ]
-
-
-def load_sent():
-    try:
-        with open(SENT_FILE) as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []
-
-
-def save_sent(sent):
-    with open(SENT_FILE, "w") as f:
-        json.dump(sent[-2000:], f)
 
 
 def caption(source, title, count):
@@ -58,7 +43,8 @@ def post(source, title, link, accent, count):
         r = requests.post(f"{API}/sendPhoto", timeout=30, files={"photo": photo},
                           data={"chat_id": CHAT_ID, "caption": caption(source, title, count),
                                 "parse_mode": "HTML", "reply_markup": markup})
-    r.raise_for_status()
+    if not r.ok:
+        raise RuntimeError(f"Telegram {r.status_code}: {r.text[:300]}")
 
     if instagram.can_post():
         try:
@@ -67,29 +53,33 @@ def post(source, title, link, accent, count):
             print(f"فشل النشر على إنستقرام: {err}")
 
 
-def run_once(sent, count):
+def run_once(sent):
     for source, url, accent in RSS_FEEDS:
         feed = feedparser.parse(url)
+        if not feed.entries:
+            print(f"ما وصلت أخبار من {source}")
         for e in feed.entries[:PER_FEED]:
             eid = e.get("id", e.get("link", ""))
             if not eid or eid in sent:
                 continue
             try:
-                count += 1
-                post(source, e.get("title", "").strip(), e.get("link", ""), accent, count)
-                sent.append(eid)
-                save_sent(sent)
+                post(source, e.get("title", "").strip(), e.get("link", ""), accent, len(sent) + 1)
+                store.mark_sent(sent, eid)
+                print(f"انرسل: {source} | {e.get('title', '')[:60]}")
                 time.sleep(2)
             except Exception as err:
                 print(f"فشل إرسال خبر من {source}: {err}")
-    return count
 
 
 if __name__ == "__main__":
     os.makedirs(CARDS_DIR, exist_ok=True)
     if instagram.enabled:
         instagram.ensure_bucket()
-    sent, count = load_sent(), 0
-    while True:
-        count = run_once(sent, count)
-        time.sleep(INTERVAL)
+    sent = store.load_sent()
+    # --once: يشتغل مرة وحدة ويطلع (لـ GitHub Actions)
+    if "--once" in sys.argv:
+        run_once(sent)
+    else:
+        while True:
+            run_once(sent)
+            time.sleep(INTERVAL)
