@@ -1,4 +1,4 @@
-import html, json, os, sys, time
+import html, json, os, re, sys, time
 import feedparser, requests
 from dotenv import load_dotenv
 from card import make_card
@@ -9,7 +9,9 @@ for _k, _v in list(os.environ.items()):
     os.environ[_k] = _v.strip()
 import store, instagram  # بعد load_dotenv عشان يقرأون الإعدادات
 
-TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
+# لو انلصقت رسالة BotFather كاملة، ناخذ التوكن منها بس
+_token = re.search(r"\d{6,}:[A-Za-z0-9_-]{30,}", os.environ["TELEGRAM_TOKEN"])
+TELEGRAM_TOKEN = _token.group(0) if _token else os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]                              # رقمك أو @اسم_القناة
 BRAND = os.getenv("BRAND") or (CHAT_ID if CHAT_ID.startswith("@") else "")  # يطلع في أسفل كل بطاقة
 SPONSOR_TEXT = os.getenv("SPONSOR_TEXT", "")                  # سطر الراعي، فاضي = بدون راعي
@@ -82,6 +84,12 @@ if __name__ == "__main__":
     os.makedirs(CARDS_DIR, exist_ok=True)
     if instagram.enabled:
         instagram.ensure_bucket()
+    me = requests.get(f"{API}/getMe", timeout=30)
+    if not me.ok:
+        print(f"التوكن مرفوض من تلقرام ({me.status_code}). "
+              f"شكل التوكن {'صح' if _token else 'غلط'}: لازم يكون مثل 123456789:AAE...")
+        sys.exit(1)
+    print(f"البوت شغال: @{me.json()['result']['username']}")
     sent = store.load_sent()
     # --once: يشتغل مرة وحدة ويطلع (لـ GitHub Actions)
     if "--once" in sys.argv:
