@@ -4,11 +4,14 @@ from dotenv import load_dotenv
 from card import make_card
 
 load_dotenv()
+# اللصق من الجوال أحياناً يضيف مسافات أو سطر فاضي بعد القيمة
+for _k, _v in list(os.environ.items()):
+    os.environ[_k] = _v.strip()
 import store, instagram  # بعد load_dotenv عشان يقرأون الإعدادات
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]                              # رقمك أو @اسم_القناة
-BRAND = os.getenv("BRAND", "")                                # يطلع في أسفل كل بطاقة
+BRAND = os.getenv("BRAND") or (CHAT_ID if CHAT_ID.startswith("@") else "")  # يطلع في أسفل كل بطاقة
 SPONSOR_TEXT = os.getenv("SPONSOR_TEXT", "")                  # سطر الراعي، فاضي = بدون راعي
 SPONSOR_EVERY = int(os.getenv("SPONSOR_EVERY") or "5")        # يطلع الراعي كل كم خبر
 INTERVAL = int(os.getenv("INTERVAL") or "900")
@@ -54,6 +57,7 @@ def post(source, title, link, accent, count):
 
 
 def run_once(sent):
+    sent_now, failed = 0, 0
     for source, url, accent in RSS_FEEDS:
         feed = feedparser.parse(url)
         if not feed.entries:
@@ -65,10 +69,13 @@ def run_once(sent):
             try:
                 post(source, e.get("title", "").strip(), e.get("link", ""), accent, len(sent) + 1)
                 store.mark_sent(sent, eid)
+                sent_now += 1
                 print(f"انرسل: {source} | {e.get('title', '')[:60]}")
                 time.sleep(2)
             except Exception as err:
+                failed += 1
                 print(f"فشل إرسال خبر من {source}: {err}")
+    return sent_now, failed
 
 
 if __name__ == "__main__":
@@ -78,7 +85,10 @@ if __name__ == "__main__":
     sent = store.load_sent()
     # --once: يشتغل مرة وحدة ويطلع (لـ GitHub Actions)
     if "--once" in sys.argv:
-        run_once(sent)
+        sent_now, failed = run_once(sent)
+        print(f"انرسل {sent_now} خبر، وفشل {failed}")
+        if failed and not sent_now:
+            sys.exit(1)  # عشان يطلع أحمر في GitHub وتنتبه
     else:
         while True:
             run_once(sent)
