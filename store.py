@@ -65,3 +65,18 @@ def ig_posts_last_day():
 
 def record_ig_post():
     _insert("ig_posts", {})
+
+
+def get_ig_token():
+    rows = _get("ig_token", select="source_hash,token,refreshed_at", id="eq.1")
+    if not rows:
+        return None
+    row = rows[0]
+    row["refreshed_at"] = datetime.fromisoformat(row["refreshed_at"])
+    return row
+
+
+def save_ig_token(source_hash, token):
+    _insert("ig_token", {"id": 1, "source_hash": source_hash, "token": token,
+                         "refreshed_at": datetime.now(timezone.utc).isoformat()},
+            Prefer="return=minimal,resolution=merge-duplicates")

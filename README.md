@@ -16,20 +16,16 @@ python main.py
 3. لما توصل تقريباً ١٠٠٠ إلى ٢٠٠٠ مشترك، بع خانة الراعي (`SPONSOR_TEXT`) لمتجر أو تطبيق محلي بمبلغ أسبوعي أو شهري.
 4. المرحلة الجاية: قناة VIP مدفوعة فيها تنبيهات أسرع ومجالات مخصصة (Supabase).
 
-## النشر التلقائي على إنستقرام
-البوت يرفع البطاقة لإنستقرام بنفسه، بس **بحدود**: افتراضياً ٨ منشورات باليوم كحد أقصى، وساعة على الأقل بين كل منشور وثاني (تغيّرها من `IG_MAX_PER_DAY` و`IG_MIN_GAP_MINUTES`). النشر الكثير يخلّي إنستقرام يحظر الحساب أو يقلل وصوله. الأخبار اللي تزيد عن الحد تنزل في تلقرام بس.
+## ستوري إنستقرام
+البوت يحوّل البطاقات لستوري (1080×1920)، وتحت البطاقة رابط قناة التلقرام. ينشر لين ٨ ستوريات باليوم، ويخلي ساعة بين كل وحدة. شبكة الصور في حسابك ما تنلمس.
 
-### التجهيز (مرة وحدة)
-1. **حوّل حساب إنستقرام لحساب احترافي** (Business أو Creator)، واربطه بصفحة فيسبوك.
-2. ادخل [developers.facebook.com](https://developers.facebook.com) وسوّ تطبيق (App) من نوع Business، وأضف له منتج **Instagram**.
-3. من **Graph API Explorer** طلّع توكن فيه هذي الصلاحيات:
-   `instagram_basic`, `instagram_content_publish`, `pages_show_list`, `pages_read_engagement`.
-   بعدين حوّله لتوكن طويل المدة (Long-lived) من أداة Access Token Debugger.
-4. اعرف رقم حسابك في إنستقرام: نفّذ `me/accounts?fields=instagram_business_account` في Graph API Explorer، وانسخ الـ `id` اللي داخل `instagram_business_account`. هذا هو `IG_USER_ID`.
-5. **Supabase:** شغّل مشروعك (Restore)، وخذ من Settings → API قيمة `Project URL` و`service_role key`. البوت يسوي الـ bucket بنفسه.
-6. حط القيم كلها في `.env`.
+التجهيز يكون بطريقة **Instagram API with Instagram Login**، وما تحتاج فيها صفحة فيسبوك:
+1. لازم الحساب يكون احترافي (Creator أو Business).
+2. ادخل developers.facebook.com وسوّ App، وأضف له منتج **Instagram**.
+3. روح **API setup with Instagram login**، وبعدها **Generate access tokens**، وأضف حسابك وانسخ التوكن.
+4. حط التوكن في GitHub Secrets باسم `IG_ACCESS_TOKEN`.
 
-> التوكن الطويل يخلص بعد ٦٠ يوم تقريباً. إذا طلع لك خطأ `190`، جدّد التوكن.
+البوت يعرف رقم الحساب لحاله، ويجدد التوكن كل أسبوع ويحفظ الجديد في Supabase.
 
 ## التشغيل على GitHub Actions (بدون كمبيوتر، مجاني)
 البوت يشتغل بنفسه كل ١٥ دقيقة من ملف `.github/workflows/bot.yml`، ويحفظ الأخبار اللي أرسلها في Supabase.

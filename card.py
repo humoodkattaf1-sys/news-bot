@@ -91,3 +91,27 @@ def make_card(title, source, out_path, brand="", accent="#ef4444", badge="عاج
 
     img.save(out_path, "PNG", optimize=True)
     return out_path
+
+
+def make_story(card_path, out_path, cta="", accent="#ef4444"):
+    """يحط البطاقة في نص ستوري 1080×1920، وتحتها سطر يودّي الناس للقناة."""
+    accent = _hex(accent)
+    h = 1920
+    img = Image.new("RGB", (SIZE, h), BG_TOP)
+    draw = ImageDraw.Draw(img)
+    for y in range(h):
+        t = y / h
+        c = tuple(int(BG_TOP[i] + (BG_BOTTOM[i] - BG_TOP[i]) * t) for i in range(3))
+        draw.line([(0, y), (SIZE, y)], fill=c)
+    top = (h - SIZE) // 2 - 100
+    img.paste(Image.open(card_path).convert("RGB"), (0, top))
+    if cta:
+        y = top + SIZE + 120
+        draw.text((SIZE // 2, y), "التفاصيل كاملة في قناة التلقرام", font=_font(44, "SemiBold"),
+                  fill=TEXT, anchor="mm", direction="rtl")
+        f = _font(50)
+        w = draw.textlength(cta, font=f) + 80
+        draw.rounded_rectangle([(SIZE - w) // 2, y + 60, (SIZE + w) // 2, y + 160], radius=50, fill=accent)
+        draw.text((SIZE // 2, y + 110), cta, font=f, fill=TEXT, anchor="mm")
+    img.save(out_path, "JPEG", quality=92)
+    return out_path

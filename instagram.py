@@ -1,37 +1,67 @@
-"""نشر البطاقات على إنستقرام عن طريق Instagram Graph API.
+"""نشر البطاقات كستوري على إنستقرام (Instagram API with Instagram Login).
 
 إنستقرام ما يقبل رفع الصورة مباشرة، لازم تكون على رابط عام.
 فنرفعها أول على Supabase Storage (bucket عام) وبعدين نعطي رابطها لإنستقرام.
+
+التوكن يخلص بعد ٦٠ يوم، فنجدده كل أسبوع ونحفظ الجديد في Supabase.
 """
-import os, time
-from datetime import datetime, timezone
+import hashlib, os, time
+from datetime import datetime, timedelta, timezone
 import requests
-from PIL import Image
+from card import make_story
 import store
 
-IG_USER_ID = os.getenv("IG_USER_ID", "")
-IG_TOKEN = os.getenv("IG_ACCESS_TOKEN", "")
-GRAPH = f"https://graph.facebook.com/{os.getenv('GRAPH_VERSION', 'v23.0')}"
+ENV_TOKEN = os.getenv("IG_ACCESS_TOKEN", "")
+VERSION = os.getenv("GRAPH_VERSION", "v23.0")
+# توكنات Instagram Login تبدأ بـ IG، والباقي توكنات فيسبوك
+HOST = "https://graph.instagram.com" if ENV_TOKEN.startswith("IG") else "https://graph.facebook.com"
+GRAPH = f"{HOST}/{VERSION}"
 BUCKET = os.getenv("SUPABASE_BUCKET", "cards")
 
-HASHTAGS = os.getenv("IG_HASHTAGS") or "#أخبار #عاجل #news"
 MAX_PER_DAY = int(os.getenv("IG_MAX_PER_DAY") or "8")
 MIN_GAP = int(os.getenv("IG_MIN_GAP_MINUTES") or "60") * 60
 
-enabled = bool(IG_USER_ID and IG_TOKEN and store.enabled)
+enabled = bool(ENV_TOKEN and store.enabled)
+_token = ENV_TOKEN
+_user_id = os.getenv("IG_USER_ID", "")
 
 
-def ensure_bucket():
+def setup():
+    """يجهز الـ bucket، ويختار أحدث توكن ويجدده إذا لزم، ويعرف رقم الحساب."""
+    global _token, _user_id
     r = requests.post(f"{store.SUPABASE_URL}/storage/v1/bucket", timeout=30, headers=store.headers(),
                       json={"id": BUCKET, "name": BUCKET, "public": True})
     if r.status_code not in (200, 201) and "already exists" not in r.text.lower():
         r.raise_for_status()
 
+    source_hash = hashlib.sha256(ENV_TOKEN.encode()).hexdigest()
+    saved = store.get_ig_token()
+    if saved and saved["source_hash"] == source_hash:
+        _token = saved["token"]
+    else:
+        store.save_ig_token(source_hash, ENV_TOKEN)  # توكن جديد في GitHub
+        saved = {"refreshed_at": datetime.now(timezone.utc)}
 
-def _upload(png_path):
-    # إنستقرام يقبل JPEG بس
-    jpg_path = png_path.rsplit(".", 1)[0] + ".jpg"
-    Image.open(png_path).convert("RGB").save(jpg_path, "JPEG", quality=92)
+    if HOST.endswith("instagram.com") and datetime.now(timezone.utc) - saved["refreshed_at"] > timedelta(days=7):
+        r = requests.get(f"{HOST}/refresh_access_token", timeout=30,
+                         params={"grant_type": "ig_refresh_token", "access_token": _token})
+        if r.ok:
+            _token = r.json()["access_token"]
+            store.save_ig_token(source_hash, _token)
+            print("تجدد توكن إنستقرام")
+        else:
+            print(f"ما قدرنا نجدد توكن إنستقرام: {r.text[:200]}")
+
+    if not _user_id:
+        r = requests.get(f"{GRAPH}/me", timeout=30, params={"fields": "user_id,username", "access_token": _token})
+        if not r.ok:
+            raise RuntimeError(f"توكن إنستقرام مرفوض: {r.text[:300]}")
+        me = r.json()
+        _user_id = str(me.get("user_id") or me["id"])
+        print(f"إنستقرام مربوط: @{me.get('username')}")
+
+
+def _upload(jpg_path):
     name = os.path.basename(jpg_path)
     with open(jpg_path, "rb") as f:
         r = requests.post(f"{store.SUPABASE_URL}/storage/v1/object/{BUCKET}/{name}", timeout=60,
@@ -42,7 +72,7 @@ def _upload(png_path):
 
 
 def _graph(path, **params):
-    r = requests.post(f"{GRAPH}/{path}", timeout=60, data={**params, "access_token": IG_TOKEN})
+    r = requests.post(f"{GRAPH}/{path}", timeout=60, data={**params, "access_token": _token})
     if not r.ok:
         raise RuntimeError(f"Instagram {r.status_code}: {r.text[:300]}")
     return r.json()
@@ -51,7 +81,7 @@ def _graph(path, **params):
 def _wait_ready(creation_id):
     for _ in range(10):
         r = requests.get(f"{GRAPH}/{creation_id}", timeout=30,
-                         params={"fields": "status_code", "access_token": IG_TOKEN})
+                         params={"fields": "status_code", "access_token": _token})
         status = r.json().get("status_code")
         if status == "FINISHED":
             return
@@ -62,7 +92,7 @@ def _wait_ready(creation_id):
 
 def can_post():
     """يمنع النشر الزايد: إنستقرام يعاقب الحسابات اللي تنشر بكثرة."""
-    if not enabled:
+    if not enabled or not _user_id:
         return False
     recent = store.ig_posts_last_day()
     if len(recent) >= MAX_PER_DAY:
@@ -70,13 +100,10 @@ def can_post():
     return not recent or (datetime.now(timezone.utc) - recent[0]).total_seconds() >= MIN_GAP
 
 
-def post(png_path, source, title, brand=""):
-    caption = f"{title}\n\nالمصدر: {source}"
-    if brand:
-        caption += f"\nتابع {brand} لآخر الأخبار (الرابط في البايو)"
-    caption += f"\n\n{HASHTAGS}"
-    url = _upload(png_path)
-    creation_id = _graph(f"{IG_USER_ID}/media", image_url=url, caption=caption)["id"]
+def post_story(card_path, cta="", accent="#ef4444"):
+    story = make_story(card_path, card_path.rsplit(".", 1)[0] + "-story.jpg", cta=cta, accent=accent)
+    url = _upload(story)
+    creation_id = _graph(f"{_user_id}/media", image_url=url, media_type="STORIES")["id"]
     _wait_ready(creation_id)
-    _graph(f"{IG_USER_ID}/media_publish", creation_id=creation_id)
+    _graph(f"{_user_id}/media_publish", creation_id=creation_id)
     store.record_ig_post()
