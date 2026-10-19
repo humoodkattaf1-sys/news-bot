@@ -7,7 +7,7 @@ load_dotenv()
 # اللصق من الجوال أحياناً يضيف مسافات أو سطر فاضي بعد القيمة
 for _k, _v in list(os.environ.items()):
     os.environ[_k] = _v.strip()
-import store, instagram  # بعد load_dotenv عشان يقرأون الإعدادات
+import store, instagram, writer  # بعد load_dotenv عشان يقرأون الإعدادات
 
 # لو انلصقت رسالة BotFather كاملة، ناخذ التوكن منها بس
 _token = re.search(r"\d{6,}:[A-Za-z0-9_-]{30,}", os.environ["TELEGRAM_TOKEN"])
@@ -31,8 +31,10 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "feeds.json")
     FEEDS = json.load(f)
 
 
-def caption(source, title, count):
+def caption(source, title, count, why=""):
     text = f"{source}\n<b>{html.escape(title)}</b>"
+    if why:
+        text += f"\n\n💡 {html.escape(why)}"
     if BRAND:
         text += f"\n\n{BRAND}"
     if SPONSOR_TEXT and count % SPONSOR_EVERY == 0:
@@ -40,13 +42,13 @@ def caption(source, title, count):
     return text
 
 
-def post(source, title, link, accent, count, badge="عاجل"):
+def post(source, title, link, accent, count, badge="عاجل", why=""):
     path = os.path.join(CARDS_DIR, f"{int(time.time() * 1000)}.png")
     make_card(title, source.split(" ", 1)[-1], path, brand=BRAND, accent=accent, badge=badge)
     markup = json.dumps({"inline_keyboard": [[{"text": "اقرأ الخبر كامل", "url": link}]]})
     with open(path, "rb") as photo:
         r = requests.post(f"{API}/sendPhoto", timeout=30, files={"photo": photo},
-                          data={"chat_id": CHAT_ID, "caption": caption(source, title, count),
+                          data={"chat_id": CHAT_ID, "caption": caption(source, title, count, why),
                                 "parse_mode": "HTML", "reply_markup": markup})
     if not r.ok:
         raise RuntimeError(f"Telegram {r.status_code}: {r.text[:300]}")
@@ -82,7 +84,8 @@ def new_items(sent):
                 title = f"{title}: {' '.join(summary.split())[:120]}"
             if feed.get("arabic_only") and not ARABIC.search(title):
                 continue
-            items.append((feed, eid, title, link))
+            summary = " ".join(re.sub(r"<[^>]+>", " ", html.unescape(e.get("summary", ""))).split())[:300]
+            items.append({"feed": feed, "eid": eid, "title": title, "link": link, "summary": summary})
             if len(items) >= PER_FEED:
                 break
         per_feed.append(items)
@@ -96,12 +99,19 @@ def new_items(sent):
 
 def run_once(sent):
     sent_now, failed = 0, 0
-    for feed, eid, title, link in new_items(sent)[:MAX_PER_RUN]:
+    # نعطي Claude ضعف العدد عشان يختار الأفضل
+    items, rejected = writer.rewrite(new_items(sent)[:MAX_PER_RUN * 3])
+    for it in rejected:
+        store.mark_sent(sent, it["eid"])  # عشان ما ينعرض على Claude مرة ثانية
+    if rejected:
+        print(f"Claude استبعد {len(rejected)} خبر ما يناسب القناة")
+    for it in items[:MAX_PER_RUN]:
+        feed, title = it["feed"], it["title"]
         source = feed["name"]
         try:
-            post(source, title, link, feed.get("color", "#ef4444"), len(sent) + 1,
-                 badge=feed.get("badge", "عاجل"))
-            store.mark_sent(sent, eid)
+            post(source, title, it["link"], feed.get("color", "#ef4444"), len(sent) + 1,
+                 badge=feed.get("badge", "عاجل"), why=it.get("why", ""))
+            store.mark_sent(sent, it["eid"])
             sent_now += 1
             print(f"انرسل: {source} | {title[:60]}")
             time.sleep(2)

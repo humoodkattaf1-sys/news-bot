@@ -1,10 +1,11 @@
 [
-  {"name": "🔥 ترند الكويت", "badge": "ترند", "color": "#f97316", "url": "https://trends.google.com/trending/rss?geo=KW", "arabic_only": true},
-  {"name": "🔥 ترند السعودية", "badge": "ترند", "color": "#f97316", "url": "https://trends.google.com/trending/rss?geo=SA", "arabic_only": true},
+  {"name": "🤖 The Verge AI", "badge": "AI", "color": "#a855f7", "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"},
+  {"name": "🤖 TechCrunch AI", "badge": "AI", "color": "#a855f7", "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
+  {"name": "🤖 OpenAI", "badge": "AI", "color": "#10b981", "url": "https://openai.com/news/rss.xml"},
+  {"name": "🤖 Google AI", "badge": "AI", "color": "#3b82f6", "url": "https://blog.google/technology/ai/rss/"},
+  {"name": "🚀 Product Hunt", "badge": "أداة جديدة", "color": "#f43f5e", "url": "https://www.producthunt.com/feed", "with_summary": true},
   {"name": "💻 البوابة التقنية", "badge": "تقنية", "color": "#8b5cf6", "url": "https://aitnews.com/feed/"},
   {"name": "💻 عالم التقنية", "badge": "تقنية", "color": "#8b5cf6", "url": "https://www.tech-wd.com/wd/feed/"},
-  {"name": "🚀 Product Hunt", "badge": "جديد", "color": "#22c55e", "url": "https://www.producthunt.com/feed", "with_summary": true},
-  {"name": "🔴 الجزيرة", "badge": "عاجل", "color": "#d97706", "url": "https://www.aljazeera.net/aljazeerarss/a2c31171-d8d4-4d8c-a488-ff9afb9f8a3d/66c43a4960f84d888f6a20f6"},
-  {"name": "🔵 BBC عربي", "badge": "عاجل", "color": "#b91c1c", "url": "https://feeds.bbci.co.uk/arabic/rss.xml"},
-  {"name": "🟢 فرانس 24", "badge": "عاجل", "color": "#0ea5e9", "url": "https://www.france24.com/ar/rss"}
+  {"name": "🔥 ترند الكويت", "badge": "ترند", "color": "#f97316", "url": "https://trends.google.com/trending/rss?geo=KW", "arabic_only": true},
+  {"name": "🔥 ترند السعودية", "badge": "ترند", "color": "#f97316", "url": "https://trends.google.com/trending/rss?geo=SA", "arabic_only": true}
 ]
