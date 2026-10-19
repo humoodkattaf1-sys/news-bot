@@ -1,0 +1,4 @@
+.env
+sent.json
+cards/
+__pycache__/
