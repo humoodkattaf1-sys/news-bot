@@ -27,7 +27,6 @@ RSS_FEEDS = [
     ("🔴 الجزيرة", "https://www.aljazeera.net/aljazeerarss/a2c31171-d8d4-4d8c-a488-ff9afb9f8a3d/66c43a4960f84d888f6a20f6", "#d97706"),
     ("🔵 BBC عربي", "https://feeds.bbci.co.uk/arabic/rss.xml", "#b91c1c"),
     ("🟢 فرانس 24", "https://www.france24.com/ar/rss", "#0ea5e9"),
-    ("📡 CNN", "http://rss.cnn.com/rss/edition.rss", "#dc2626"),
 ]
 
 
