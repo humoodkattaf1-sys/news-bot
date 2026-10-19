@@ -58,7 +58,9 @@ def post(source, title, link, accent, count, badge="عاجل", why=""):
 
     if instagram.can_post():
         try:
-            instagram.post(path, source.split(" ", 1)[-1], title, brand=BRAND)
+            cta = f"t.me/{CHAT_ID.lstrip('@')}" if CHAT_ID.startswith("@") else ""
+            instagram.post_story(path, cta=cta, accent=accent)
+            print("انرفعت ستوري على إنستقرام")
         except Exception as err:
             print(f"فشل النشر على إنستقرام: {err}")
 
@@ -128,7 +130,10 @@ def run_once(sent):
 if __name__ == "__main__":
     os.makedirs(CARDS_DIR, exist_ok=True)
     if instagram.enabled:
-        instagram.ensure_bucket()
+        try:
+            instagram.setup()
+        except Exception as err:
+            print(f"إنستقرام ما اشتغل، بنكمل تلقرام بس: {err}")
     me = requests.get(f"{API}/getMe", timeout=30)
     if not me.ok:
         print(f"التوكن مرفوض من تلقرام ({me.status_code}). "
