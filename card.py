@@ -53,7 +53,7 @@ def _fit_title(draw, title, width, max_height):
     return font, lines, line_h
 
 
-def make_card(title, source, out_path, brand="", accent="#ef4444"):
+def make_card(title, source, out_path, brand="", accent="#ef4444", badge="عاجل"):
     accent = _hex(accent)
     img = Image.new("RGB", (SIZE, SIZE), BG_TOP)
     draw = ImageDraw.Draw(img)
@@ -65,9 +65,8 @@ def make_card(title, source, out_path, brand="", accent="#ef4444"):
 
     draw.rectangle([0, 0, SIZE, 14], fill=accent)
 
-    # شارة "عاجل" ومصدر الخبر
+    # الشارة (عاجل، ترند، تقنية...) ومصدر الخبر
     badge_font = _font(34)
-    badge = "عاجل"
     bw = draw.textlength(badge, font=badge_font, direction="rtl") + 56
     draw.rounded_rectangle([SIZE - PAD - bw, 90, SIZE - PAD, 160], radius=14, fill=accent)
     draw.text((SIZE - PAD - 28, 125), badge, font=badge_font, fill=TEXT, anchor="rm", direction="rtl")
