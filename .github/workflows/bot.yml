@@ -13,6 +13,8 @@ jobs:
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # ما يشتغل لين تحط التوكن في Secrets (عشان ما يطلع لك فشل كل ١٥ دقيقة)
+    if: ${{ vars.CHAT_ID != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
