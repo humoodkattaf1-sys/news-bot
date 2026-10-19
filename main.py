@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from card import make_card
 
 load_dotenv()
+import instagram  # بعد load_dotenv عشان يقرأ الإعدادات
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]                      # رقمك أو @اسم_القناة
@@ -59,6 +60,12 @@ def post(source, title, link, accent, count):
                                 "parse_mode": "HTML", "reply_markup": markup})
     r.raise_for_status()
 
+    if instagram.can_post():
+        try:
+            instagram.post(path, source.split(" ", 1)[-1], title, brand=BRAND)
+        except Exception as err:
+            print(f"فشل النشر على إنستقرام: {err}")
+
 
 def run_once(sent, count):
     for source, url, accent in RSS_FEEDS:
@@ -80,6 +87,8 @@ def run_once(sent, count):
 
 if __name__ == "__main__":
     os.makedirs(CARDS_DIR, exist_ok=True)
+    if instagram.enabled:
+        instagram.ensure_bucket()
     sent, count = load_sent(), 0
     while True:
         count = run_once(sent, count)

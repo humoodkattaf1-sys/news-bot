@@ -15,3 +15,18 @@ python main.py
 2. انشر البطاقات من `cards/` على إنستقرام وتيك توك وحط رابط القناة في البايو.
 3. لما توصل تقريباً ١٠٠٠ إلى ٢٠٠٠ مشترك، بع خانة الراعي (`SPONSOR_TEXT`) لمتجر أو تطبيق محلي بمبلغ أسبوعي أو شهري.
 4. المرحلة الجاية: قناة VIP مدفوعة فيها تنبيهات أسرع ومجالات مخصصة (Supabase).
+
+## النشر التلقائي على إنستقرام
+البوت يرفع البطاقة لإنستقرام بنفسه، بس **بحدود**: افتراضياً ٨ منشورات باليوم كحد أقصى، وساعة على الأقل بين كل منشور وثاني (تغيّرها من `IG_MAX_PER_DAY` و`IG_MIN_GAP_MINUTES`). النشر الكثير يخلّي إنستقرام يحظر الحساب أو يقلل وصوله. الأخبار اللي تزيد عن الحد تنزل في تلقرام بس.
+
+### التجهيز (مرة وحدة)
+1. **حوّل حساب إنستقرام لحساب احترافي** (Business أو Creator)، واربطه بصفحة فيسبوك.
+2. ادخل [developers.facebook.com](https://developers.facebook.com) وسوّ تطبيق (App) من نوع Business، وأضف له منتج **Instagram**.
+3. من **Graph API Explorer** طلّع توكن فيه هذي الصلاحيات:
+   `instagram_basic`, `instagram_content_publish`, `pages_show_list`, `pages_read_engagement`.
+   بعدين حوّله لتوكن طويل المدة (Long-lived) من أداة Access Token Debugger.
+4. اعرف رقم حسابك في إنستقرام: نفّذ `me/accounts?fields=instagram_business_account` في Graph API Explorer، وانسخ الـ `id` اللي داخل `instagram_business_account`. هذا هو `IG_USER_ID`.
+5. **Supabase:** شغّل مشروعك (Restore)، وخذ من Settings → API قيمة `Project URL` و`service_role key`. البوت يسوي الـ bucket بنفسه.
+6. حط القيم كلها في `.env`.
+
+> التوكن الطويل يخلص بعد ٦٠ يوم تقريباً. إذا طلع لك خطأ `190`، جدّد التوكن.
