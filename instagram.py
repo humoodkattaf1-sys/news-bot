@@ -24,7 +24,11 @@ _posted = []  # أوقات آخر المنشورات
 
 
 def _sb_headers(**extra):
-    return {"Authorization": f"Bearer {SUPABASE_KEY}", "apikey": SUPABASE_KEY, **extra}
+    headers = {"apikey": SUPABASE_KEY, **extra}
+    # المفاتيح الجديدة (sb_secret_...) مو JWT، فتنرسل في apikey بس
+    if not SUPABASE_KEY.startswith("sb_"):
+        headers["Authorization"] = f"Bearer {SUPABASE_KEY}"
+    return headers
 
 
 def ensure_bucket():
