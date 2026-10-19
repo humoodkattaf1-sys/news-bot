@@ -68,4 +68,4 @@ https://github.com/humoodkattaf1-sys/news-bot/edit/main/feeds.json
 
 الموديل الافتراضي `claude-opus-5-5`. إذا تبي تكلفة أقل، أضف متغير `CLAUDE_MODEL` وحط قيمته `claude-haiku-5-5`.
 
-وإذا ما فيه مفتاح، البوت ينشر الأخبار مثل ما هي بدون ترجمة.
+وإذا ما فيه مفتاح، المصادر اللي عليها `"english": true` تتوقف، والمصادر العربية تكمل عادي.

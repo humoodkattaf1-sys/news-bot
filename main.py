@@ -64,6 +64,8 @@ def new_items(sent):
     """يجمع الأخبار الجديدة من كل مصدر، ويخلطها بالتناوب عشان ما يطغى مصدر واحد."""
     per_feed = []
     for feed in FEEDS:
+        if feed.get("english") and not writer.enabled:
+            continue  # المصادر الإنجليزية تنتظر مفتاح Claude عشان تترجم
         parsed = feedparser.parse(feed["url"])
         if not parsed.entries:
             print(f"ما وصلت أخبار من {feed['name']} (تأكد من الرابط)")
