@@ -14,6 +14,7 @@ _token = re.search(r"\d{6,}:[A-Za-z0-9_-]{30,}", os.environ["TELEGRAM_TOKEN"])
 TELEGRAM_TOKEN = _token.group(0) if _token else os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]                              # رقمك أو @اسم_القناة
 BRAND = os.getenv("BRAND") or (CHAT_ID if CHAT_ID.startswith("@") else "")  # يطلع في أسفل كل بطاقة
+INSTAGRAM = os.getenv("INSTAGRAM", "").lstrip("@")                # حساب إنستقرام يطلع رابطه تحت كل خبر
 SPONSOR_TEXT = os.getenv("SPONSOR_TEXT", "")                  # سطر الراعي، فاضي = بدون راعي
 SPONSOR_EVERY = int(os.getenv("SPONSOR_EVERY") or "5")        # يطلع الراعي كل كم خبر
 INTERVAL = int(os.getenv("INTERVAL") or "900")
@@ -35,7 +36,9 @@ def caption(source, title, count, why=""):
     text = f"{source}\n<b>{html.escape(title)}</b>"
     if why:
         text += f"\n\n💡 {html.escape(why)}"
-    if BRAND:
+    if INSTAGRAM:
+        text += f'\n\n📸 <a href="https://instagram.com/{INSTAGRAM}">تابعنا على إنستقرام @{INSTAGRAM}</a>'
+    elif BRAND:
         text += f"\n\n{BRAND}"
     if SPONSOR_TEXT and count % SPONSOR_EVERY == 0:
         text += f"\n\n📢 {SPONSOR_TEXT}"

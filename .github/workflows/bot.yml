@@ -31,7 +31,8 @@ jobs:
           CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
           SUPABASE_URL: https://wbkkmkesgsegtwvyzgtv.supabase.co
           CHAT_ID: ${{ vars.CHAT_ID }}
-          BRAND: ${{ vars.BRAND }}
+          BRAND: ${{ vars.BRAND || '@hamoudgpt' }}
+          INSTAGRAM: ${{ vars.INSTAGRAM || 'hamoudgpt' }}
           SPONSOR_TEXT: ${{ vars.SPONSOR_TEXT }}
           SPONSOR_EVERY: ${{ vars.SPONSOR_EVERY }}
           IG_USER_ID: ${{ vars.IG_USER_ID }}
