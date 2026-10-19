@@ -2,7 +2,7 @@ name: News Bot
 
 on:
   schedule:
-    - cron: "*/15 * * * *"   # كل ١٥ دقيقة (GitHub أحياناً يتأخر شوي)
+    - cron: "7,22,37,52 * * * *"   # كل ١٥ دقيقة، بعيد عن رأس الساعة لأن GitHub يتأخر وقت الزحمة
   workflow_dispatch:          # زر تشغيل يدوي من تبويب Actions
 
 concurrency:
