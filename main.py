@@ -24,6 +24,8 @@ CARDS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cards")
 
 MAX_PER_RUN = int(os.getenv("MAX_PER_RUN") or "6")           # أقصى عدد منشورات بكل تشغيلة
 
+ARABIC = re.compile(r"[\u0600-\u06FF]")
+
 # المصادر في feeds.json: عدّله من GitHub عشان تضيف أو تشيل مصادر
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "feeds.json"), encoding="utf-8") as f:
     FEEDS = json.load(f)
@@ -64,10 +66,25 @@ def new_items(sent):
         if not parsed.entries:
             print(f"ما وصلت أخبار من {feed['name']} (تأكد من الرابط)")
         items = []
-        for e in parsed.entries[:PER_FEED]:
+        for e in parsed.entries[:PER_FEED * 3]:
             eid = e.get("id", e.get("link", ""))
-            if eid and eid not in sent and e.get("title"):
-                items.append((feed, eid, e))
+            title, link = e.get("title", "").strip(), e.get("link", "")
+            if not eid or eid in sent or not title:
+                continue
+            # ترندات قوقل: العنوان كلمة بحث بس، فنضيف عنوان الخبر المرتبط فيها
+            if e.get("ht_news_item_title"):
+                title = f"{title}: {e['ht_news_item_title']}"
+                link = e.get("ht_news_item_url") or link
+            # مثل Product Hunt: العنوان اسم بس، فنضيف الوصف
+            if feed.get("with_summary") and e.get("summary"):
+                summary = re.sub(r"<[^>]+>", " ", html.unescape(e["summary"]))
+                summary = re.sub(r"\bDiscussion\s*\|\s*Link\b", "", summary)
+                title = f"{title}: {' '.join(summary.split())[:120]}"
+            if feed.get("arabic_only") and not ARABIC.search(title):
+                continue
+            items.append((feed, eid, title, link))
+            if len(items) >= PER_FEED:
+                break
         per_feed.append(items)
     mixed = []
     while any(per_feed):
@@ -79,12 +96,8 @@ def new_items(sent):
 
 def run_once(sent):
     sent_now, failed = 0, 0
-    for feed, eid, e in new_items(sent)[:MAX_PER_RUN]:
-        source, title, link = feed["name"], e.get("title", "").strip(), e.get("link", "")
-        # ترندات قوقل: العنوان كلمة بحث بس، فنضيف عنوان الخبر المرتبط فيها
-        if e.get("ht_news_item_title"):
-            title = f"{title}: {e['ht_news_item_title']}"
-            link = e.get("ht_news_item_url") or link
+    for feed, eid, title, link in new_items(sent)[:MAX_PER_RUN]:
+        source = feed["name"]
         try:
             post(source, title, link, feed.get("color", "#ef4444"), len(sent) + 1,
                  badge=feed.get("badge", "عاجل"))
