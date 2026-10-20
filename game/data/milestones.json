@@ -1,0 +1,38 @@
+[
+  {
+    "id": "gather_food",
+    "phase": 0,
+    "objective": "Gather food for your companion",
+    "condition_key": "food_gathered_total",
+    "condition_value": 5,
+    "completion_title": "Well Stocked",
+    "completion_body": "You've gathered enough food. Feed your companion to help it grow stronger."
+  },
+  {
+    "id": "level_creature",
+    "phase": 1,
+    "objective": "Level your companion to Lv. 5",
+    "condition_key": "creature_level",
+    "condition_value": 5,
+    "completion_title": "Growing Bond",
+    "completion_body": "Your companion is getting stronger. A strange glimmer catches your eye..."
+  },
+  {
+    "id": "find_shard",
+    "phase": 2,
+    "objective": "Find the Moonstone Shard",
+    "condition_key": "has_item",
+    "condition_value": "moonstone_shard",
+    "completion_title": "A Strange Discovery",
+    "completion_body": "The shard hums with quiet energy. Bring your companion to the stone when it is ready."
+  },
+  {
+    "id": "evolve_creature",
+    "phase": 3,
+    "objective": "Evolve your companion at the stone",
+    "condition_key": "creature_evolved",
+    "condition_value": true,
+    "completion_title": "Transformed",
+    "completion_body": "Something has changed in both of you. The Grove feels different now."
+  }
+]

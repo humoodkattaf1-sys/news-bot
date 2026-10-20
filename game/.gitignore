@@ -1,0 +1,12 @@
+# Godot editor cache
+.godot/
+*.tmp
+export_presets.cfg
+*.uid
+
+# Save data
+save/*.json
+
+# OS
+.DS_Store
+Thumbs.db

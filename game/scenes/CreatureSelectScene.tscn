@@ -1,0 +1,128 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/CreatureSelectScene.gd" id="1"]
+
+[node name="CreatureSelectScene" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="BG" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.07, 0.11, 0.07, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Center/VBox"]
+text = "Choose your companion"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 42
+theme_override_colors/font_color = Color(0.75, 0.95, 0.65, 1)
+
+[node name="Subtitle" type="Label" parent="Center/VBox"]
+text = "Each companion has unique strengths"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.58, 0.75, 0.52, 1)
+
+[node name="NavRow" type="HBoxContainer" parent="Center/VBox"]
+alignment = 1
+
+[node name="PrevBtn" type="Button" parent="Center/VBox/NavRow"]
+text = "◀"
+custom_minimum_size = Vector2(56, 56)
+size_flags_vertical = 4
+
+[node name="NavGap1" type="Control" parent="Center/VBox/NavRow"]
+custom_minimum_size = Vector2(20, 0)
+
+[node name="Card" type="VBoxContainer" parent="Center/VBox/NavRow"]
+custom_minimum_size = Vector2(380, 0)
+theme_override_constants/separation = 10
+
+[node name="CreatureColor" type="ColorRect" parent="Center/VBox/NavRow/Card"]
+custom_minimum_size = Vector2(380, 160)
+color = Color(0.18, 0.48, 0.22, 1)
+
+[node name="Initial" type="Label" parent="Center/VBox/NavRow/Card/CreatureColor"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 88
+theme_override_colors/font_color = Color(1.0, 1.0, 1.0, 0.22)
+
+[node name="CreatureName" type="Label" parent="Center/VBox/NavRow/Card"]
+text = "Frogling"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.9, 0.98, 0.82, 1)
+
+[node name="Description" type="Label" parent="Center/VBox/NavRow/Card"]
+text = "A calm, damp creature that thrives near mossy pools."
+horizontal_alignment = 1
+autowrap_mode = 3
+custom_minimum_size = Vector2(380, 52)
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.68, 0.83, 0.6, 1)
+
+[node name="StatRow" type="HBoxContainer" parent="Center/VBox/NavRow/Card"]
+alignment = 1
+theme_override_constants/separation = 28
+
+[node name="StatSpeed" type="Label" parent="Center/VBox/NavRow/Card/StatRow"]
+text = "SPD  3"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.72, 0.9, 0.62, 1)
+
+[node name="StatRes" type="Label" parent="Center/VBox/NavRow/Card/StatRow"]
+text = "RES  4"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.72, 0.9, 0.62, 1)
+
+[node name="StatFor" type="Label" parent="Center/VBox/NavRow/Card/StatRow"]
+text = "FOR  5"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.72, 0.9, 0.62, 1)
+
+[node name="NavGap2" type="Control" parent="Center/VBox/NavRow"]
+custom_minimum_size = Vector2(20, 0)
+
+[node name="NextBtn" type="Button" parent="Center/VBox/NavRow"]
+text = "▶"
+custom_minimum_size = Vector2(56, 56)
+size_flags_vertical = 4
+
+[node name="DotRow" type="HBoxContainer" parent="Center/VBox"]
+alignment = 1
+theme_override_constants/separation = 14
+
+[node name="Dot0" type="Label" parent="Center/VBox/DotRow"]
+text = "●"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.8, 0.95, 0.7, 1)
+
+[node name="Dot1" type="Label" parent="Center/VBox/DotRow"]
+text = "○"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.38, 0.5, 0.35, 1)
+
+[node name="Dot2" type="Label" parent="Center/VBox/DotRow"]
+text = "○"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.38, 0.5, 0.35, 1)
+
+[node name="ConfirmBtn" type="Button" parent="Center/VBox"]
+text = "Choose Companion"
+custom_minimum_size = Vector2(280, 58)
+size_flags_horizontal = 4
+
+[connection signal="pressed" from="Center/VBox/NavRow/PrevBtn" to="." method="_on_prev_pressed"]
+[connection signal="pressed" from="Center/VBox/NavRow/NextBtn" to="." method="_on_next_pressed"]
+[connection signal="pressed" from="Center/VBox/ConfirmBtn" to="." method="_on_confirm_pressed"]

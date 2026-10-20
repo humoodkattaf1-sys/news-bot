@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/StoryScene.gd" id="1"]
+
+[node name="StoryScene" type="Node2D"]
+script = ExtResource("1")
+
+; ── Atmospheric background ────────────────────────────────────────────────────
+[node name="BgLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="BG" type="ColorRect" parent="BgLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.05, 0.10, 0.05, 1.0)
+
+; ── UI layer ──────────────────────────────────────────────────────────────────
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 10
+
+; Area label — top-left
+[node name="AreaLabel" type="Label" parent="UI"]
+position = Vector2(20, 16)
+text = "Whispering Grove"
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.55, 0.72, 0.44, 0.80)
+
+; ── Dialogue panel ────────────────────────────────────────────────────────────
+[node name="DialoguePanel" type="PanelContainer" parent="UI"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -440.0
+offset_top = 220.0
+offset_right = 440.0
+offset_bottom = 560.0
+
+[node name="VBox" type="VBoxContainer" parent="UI/DialoguePanel"]
+theme_override_constants/separation = 18
+
+[node name="DialogueLabel" type="Label" parent="UI/DialoguePanel/VBox"]
+custom_minimum_size = Vector2(840, 200)
+text = ""
+autowrap_mode = 3
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(0.92, 0.95, 0.85, 1.0)
+
+[node name="AdvanceHint" type="Label" parent="UI/DialoguePanel/VBox"]
+horizontal_alignment = 1
+text = "[ Space / Enter ] continue"
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.50, 0.66, 0.42, 0.80)
+
+; ── Growth reveal panel (hidden until protagonist age advances) ───────────────
+[node name="GrowthPanel" type="PanelContainer" parent="UI"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -360.0
+offset_top = 180.0
+offset_right = 360.0
+offset_bottom = 560.0
+visible = false
+
+[node name="VBox" type="VBoxContainer" parent="UI/GrowthPanel"]
+theme_override_constants/separation = 16
+
+[node name="GrowthTitle" type="Label" parent="UI/GrowthPanel/VBox"]
+text = "You have grown."
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.96, 0.94, 0.80, 1.0)
+
+[node name="GrowthLabel" type="Label" parent="UI/GrowthPanel/VBox"]
+text = "Child  \u2192  Teen"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.95, 0.82, 0.28, 1.0)
+
+[node name="GrowthStats" type="Label" parent="UI/GrowthPanel/VBox"]
+text = ""
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.78, 0.90, 0.68, 1.0)
+
+[node name="GrowthHint" type="Label" parent="UI/GrowthPanel/VBox"]
+text = "[ Space / Enter ] continue"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.50, 0.66, 0.42, 0.80)

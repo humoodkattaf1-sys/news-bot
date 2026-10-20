@@ -1,0 +1,66 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/InventoryPanel.gd" id="1"]
+
+[node name="InventoryPanel" type="CanvasLayer"]
+layer = 15
+script = ExtResource("1")
+
+[node name="PanelBG" type="PanelContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -255.0
+offset_top = -255.0
+offset_right = 255.0
+offset_bottom = 255.0
+
+[node name="VBox" type="VBoxContainer" parent="PanelBG"]
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="PanelBG/VBox"]
+text = "Creature & Bag"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.85, 0.96, 0.72, 1.0)
+
+; ── Creature status ───────────────────────────────────────────────────────────
+[node name="CreatureInfoBox" type="VBoxContainer" parent="PanelBG/VBox"]
+theme_override_constants/separation = 4
+
+[node name="CreatureName" type="Label" parent="PanelBG/VBox/CreatureInfoBox"]
+text = "—"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.90, 0.98, 0.78, 1.0)
+
+[node name="CreatureLevel" type="Label" parent="PanelBG/VBox/CreatureInfoBox"]
+text = "Lv. 1   ·   EXP  0 / 150"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.68, 0.88, 0.55, 1.0)
+
+[node name="ExpBar" type="ProgressBar" parent="PanelBG/VBox/CreatureInfoBox"]
+custom_minimum_size = Vector2(460, 12)
+min_value = 0.0
+max_value = 100.0
+value = 0.0
+
+[node name="EvoReq" type="Label" parent="PanelBG/VBox/CreatureInfoBox"]
+text = "Evolves at Lv. 10"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.72, 0.58, 0.92, 0.90)
+
+[node name="HSep" type="HSeparator" parent="PanelBG/VBox"]
+
+; ── Item list ─────────────────────────────────────────────────────────────────
+[node name="FeedHint" type="Label" parent="PanelBG/VBox"]
+text = "Double-click food to feed your companion      [ I ] close"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.56, 0.72, 0.48, 1.0)
+
+[node name="ItemList" type="ItemList" parent="PanelBG/VBox"]
+custom_minimum_size = Vector2(490, 220)
